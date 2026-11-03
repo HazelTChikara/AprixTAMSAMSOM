@@ -13,5 +13,6 @@ The page runs inside a claude.ai Dashboard artifact, which supplies the `dash` d
 - `data/`: the assumption files the dashboard reads: cases, segment mapping, Aprix tiers
   and settings
 
-The Capital IQ screen itself is licensed data and is not in this repo. Load an export on
-the dashboard's Data panel, or replace the screen file in the dashboard's Sources.
+The dashboard ships no company data: it opens empty, and each viewer loads their own
+Capital IQ export on the Data panel. The file is read in their browser and is never
+uploaded or seen by anyone else.

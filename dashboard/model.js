@@ -9,7 +9,7 @@
     ['Clients signed per year', 'cap'],
   ];
   const KEYS = ['fit', 'acv', 'win', 'cap'];
-  const DATASETS = ['companies', 'screen_stats', 'cases', 'tiers', 'settings', 'segments'];
+  const DATASETS = ['cases', 'tiers', 'settings', 'segments'];
   const finite = (v) => v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v));
 
   // Capital IQ rows mapped to segments, one row per company in any segment.
@@ -342,17 +342,17 @@
     return toTable(await sheetRows(named('Screening') || sheets[0]), meta);
   };
 
-  // Which screen the figures use: a file the viewer loaded, a Drive link, or the saved file.
+  // Which screen the figures use: a file the viewer loaded or a Drive link. There is no saved one.
   function activeSource(p) {
     if (p.source === 'upload' && window.tsUpload) return { kind: 'upload', status: 'ok', ...window.tsUpload };
     if (p.drive_file) {
       const g = dash.data('drive_screen');
       return { kind: 'drive', status: g.status, rows: g.data, meta: g.meta || [] };
     }
-    return { kind: 'saved', status: 'ok' };
+    return { kind: 'none', status: 'empty' };
   }
 
-  // A loaded file brings its own screen size; without it the saved file's numbers would mislead.
+  // A loaded file brings its own screen size from its Aggregates and Screen Criteria sheets.
   const META_SETTINGS = {
     'Screen total companies': 'screen_total_companies',
     'Screen revenue from (US$M)': 'screen_revenue_min_usd_m',
@@ -368,7 +368,7 @@
     const p = dash.params();
     const source = activeSource(p);
     if (source.status !== 'ok') return { status: source.status, source };
-    const ids = source.kind === 'saved' ? DATASETS : ['cases', 'tiers', 'settings', 'segments'];
+    const ids = DATASETS;
     const got = ids.map((id) => dash.data(id));
     const bad = got.find((g) => g.status !== 'ok');
     if (bad) return { status: bad.status, source };
@@ -376,11 +376,9 @@
     const refs = got.map((g) => g.data).concat(source.rows || null);
     if (last && last.key === key && last.refs.length === refs.length && last.refs.every((r, i) => r === refs[i])) return last.m;
     const d = Object.fromEntries(ids.map((id, i) => [id, got[i].data]));
-    if (source.kind !== 'saved') {
-      d.companies = calcCompanies(source.rows, d.segments);
-      d.screen_stats = calcScreenStats(source.rows);
-      d.settings = d.settings.concat(metaSettings(source.meta));
-    }
+    d.companies = calcCompanies(source.rows, d.segments);
+    d.screen_stats = calcScreenStats(source.rows);
+    d.settings = d.settings.concat(metaSettings(source.meta));
     const m = compute(d, p);
     m.source = source;
     last = { key, refs, m };

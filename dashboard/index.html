@@ -110,8 +110,8 @@
   .ts-data-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--cds-gap-md); align-items: stretch; }
   @container (max-width: 640px) { .ts-data-grid { grid-template-columns: minmax(0, 1fr); } }
   .ts-data-now { display: inline-flex; align-items: center; gap: 8px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; min-width: 0; }
-  .ts-data-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ap-green); flex: none; }
-  .ts-data.is-custom .ts-data-dot { background: var(--ap-blue); }
+  .ts-data-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ap-grey); flex: none; }
+  .ts-data.is-custom .ts-data-dot { background: var(--ap-green); }
   .ts-drop { position: relative; display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 7.5rem; padding: var(--cds-pad-md); text-align: center; border: 1.5px dashed color-mix(in srgb, var(--ap-blue) 55%, var(--color-border-line)); border-radius: var(--cds-radius); background: color-mix(in srgb, var(--ap-blue) 5%, transparent); cursor: pointer; transition: background var(--cds-dur-slow), border-color var(--cds-dur-slow); }
   .ts-drop:hover, .ts-drop.is-over { background: color-mix(in srgb, var(--ap-blue) 12%, transparent); border-color: var(--ap-blue); }
   .ts-drop:focus-within { outline: 2px solid var(--ap-blue); outline-offset: 2px; }
@@ -138,13 +138,14 @@
 
 <div class="ts">
   <header class="ts-head" id="top">
-    <div class="ts-eyebrow">Market sizing · US and Canada · Capital IQ screen</div>
+    <div class="ts-eyebrow">Market sizing · Capital IQ screen</div>
     <h1 class="ts-title">TAM SAM SOM model</h1>
-    <p class="ts-take">The <b data-draw="v" data-v="case">—</b> case puts TAM at <b data-draw="v" data-v="TAM" data-source="companies screen_stats cases tiers settings segments">—</b>, SAM at <b data-draw="v" data-v="SAM" data-source="companies screen_stats cases tiers settings segments">—</b> and SOM at <b data-draw="v" data-v="SOM" data-source="companies screen_stats cases tiers settings segments">—</b> by year <span data-draw="v" data-v="years" data-source="settings">—</span>, set by the <span data-draw="v" data-v="limit" data-source="companies screen_stats cases tiers settings segments">—</span>. Across <span data-draw="v" data-v="mc-n" data-source="companies screen_stats cases tiers settings segments">—</span> simulated scenarios, SOM lands between <b data-draw="v" data-v="mc-p10" data-source="companies screen_stats cases tiers settings segments">—</b> and <b data-draw="v" data-v="mc-p90" data-source="companies screen_stats cases tiers settings segments">—</b> four times in five.</p>
+    <p class="ts-take ts-start">Load a Capital IQ export in the Data panel below to size the market. The assumptions are ready; edit them any time.</p>
+    <p class="ts-take ts-result">The <b data-draw="v" data-v="case">—</b> case puts TAM at <b data-draw="v" data-v="TAM" data-source="cases tiers settings segments">—</b>, SAM at <b data-draw="v" data-v="SAM" data-source="cases tiers settings segments">—</b> and SOM at <b data-draw="v" data-v="SOM" data-source="cases tiers settings segments">—</b> by year <span data-draw="v" data-v="years" data-source="settings">—</span>, set by the <span data-draw="v" data-v="limit" data-source="cases tiers settings segments">—</span>. Across <span data-draw="v" data-v="mc-n" data-source="cases tiers settings segments">—</span> simulated scenarios, SOM lands between <b data-draw="v" data-v="mc-p10" data-source="cases tiers settings segments">—</b> and <b data-draw="v" data-v="mc-p90" data-source="cases tiers settings segments">—</b> four times in five.</p>
   </header>
 
   <div class="ts-strip" id="scenario">
-    <div class="ts-strip-chips" data-draw="scenario" data-source="companies screen_stats cases tiers settings segments">—</div>
+    <div class="ts-strip-chips" data-draw="scenario" data-source="cases tiers settings segments">—</div>
     <button class="ts-btn ts-edit" type="button" aria-expanded="false" aria-controls="assumptions">Edit assumptions</button>
   </div>
 
@@ -177,8 +178,8 @@
     <p class="ts-warn" data-msg="drive" hidden>The Drive file didn't load. Check that you can open it and that it is a CSV, .xlsx or Google Sheet.</p>
     <p class="ts-warn" data-msg="connect" hidden>Connect Google Drive to load this file.</p>
     <div class="ts-data-foot">
-      <p class="ts-note">A file loaded here is used in your browser for this visit only, and Drive links use each viewer's own access. To change the saved screen for everyone, replace the screen file in Sources.</p>
-      <button class="ts-btn ts-btn-quiet ts-use-saved" type="button" hidden>Back to the saved screen</button>
+      <p class="ts-note">Your file stays in your browser for this visit; nobody else sees it, and nothing is uploaded or saved. Drive links use your own Google Drive connection.</p>
+      <button class="ts-btn ts-btn-quiet ts-use-saved" type="button" hidden>Clear the loaded file</button>
     </div>
   </section>
 
@@ -211,7 +212,7 @@
 
     <section class="ts-card" id="scope" aria-label="Who counts">
       <h2>Who counts</h2>
-      <div class="ts-picks" data-draw="seg-picks" data-source="segments companies"></div>
+      <div class="ts-picks" data-draw="seg-picks" data-source="segments"></div>
       <div class="ts-chip-block">
         <div class="ts-label">Countries</div>
         <div class="ts-chips">
@@ -239,7 +240,7 @@
       </div>
       <div class="ts-chip-block ts-estimate-row" hidden>
         <div class="ts-label">Export cut-off</div>
-        <div class="ts-chips"><button class="ts-chip" id="estimate" type="button">Add about <span data-draw="v" data-v="est-inscope" data-source="companies screen_stats settings">—</span> companies cut off by the export</button></div>
+        <div class="ts-chips"><button class="ts-chip" id="estimate" type="button">Add about <span data-draw="v" data-v="est-inscope" data-source="settings">—</span> companies cut off by the export</button></div>
       </div>
     </section>
 
@@ -268,25 +269,25 @@
       </div>
     </div>
     <div class="ts-hero">
-      <div class="ts-chart ts-chart-hero" data-draw="size" data-source="companies screen_stats cases tiers settings segments"></div>
+      <div class="ts-chart ts-chart-hero" data-draw="size" data-source="cases tiers settings segments"></div>
       <div class="ts-kpis">
         <div class="ts-kpi" id="kpi-tam">
           <div class="ts-kpi-top"><span class="ts-dot" data-ring="TAM"></span><span class="ts-kpi-tag">TAM</span><span class="ts-kpi-def">every company in scope</span></div>
-          <div class="ts-big" data-draw="v" data-v="TAM" data-source="companies screen_stats cases tiers settings segments">—</div>
-          <div class="ts-kpi-sub" data-draw="v" data-v="tamN" data-source="companies screen_stats cases tiers settings segments">—</div>
-          <div class="ts-range" data-draw="range" data-m="TAM" data-source="companies screen_stats cases tiers settings segments"></div>
+          <div class="ts-big" data-draw="v" data-v="TAM" data-source="cases tiers settings segments">—</div>
+          <div class="ts-kpi-sub" data-draw="v" data-v="tamN" data-source="cases tiers settings segments">—</div>
+          <div class="ts-range" data-draw="range" data-m="TAM" data-source="cases tiers settings segments"></div>
         </div>
         <div class="ts-kpi" id="kpi-sam">
           <div class="ts-kpi-top"><span class="ts-dot" data-ring="SAM"></span><span class="ts-kpi-tag">SAM</span><span class="ts-kpi-def">the share that fit</span></div>
-          <div class="ts-big" data-draw="v" data-v="SAM" data-source="companies screen_stats cases tiers settings segments">—</div>
-          <div class="ts-kpi-sub" data-draw="v" data-v="samN" data-source="companies screen_stats cases tiers settings segments">—</div>
-          <div class="ts-range" data-draw="range" data-m="SAM" data-source="companies screen_stats cases tiers settings segments"></div>
+          <div class="ts-big" data-draw="v" data-v="SAM" data-source="cases tiers settings segments">—</div>
+          <div class="ts-kpi-sub" data-draw="v" data-v="samN" data-source="cases tiers settings segments">—</div>
+          <div class="ts-range" data-draw="range" data-m="SAM" data-source="cases tiers settings segments"></div>
         </div>
         <div class="ts-kpi" id="kpi-som">
           <div class="ts-kpi-top"><span class="ts-dot" data-ring="SOM"></span><span class="ts-kpi-tag">SOM</span><span class="ts-kpi-def">what you can win</span></div>
-          <div class="ts-big" data-draw="v" data-v="SOM" data-source="companies screen_stats cases tiers settings segments">—</div>
-          <div class="ts-kpi-sub" data-draw="v" data-v="somN" data-source="companies screen_stats cases tiers settings segments">—</div>
-          <div class="ts-range" data-draw="range" data-m="SOM" data-source="companies screen_stats cases tiers settings segments"></div>
+          <div class="ts-big" data-draw="v" data-v="SOM" data-source="cases tiers settings segments">—</div>
+          <div class="ts-kpi-sub" data-draw="v" data-v="somN" data-source="cases tiers settings segments">—</div>
+          <div class="ts-range" data-draw="range" data-m="SOM" data-source="cases tiers settings segments"></div>
         </div>
       </div>
     </div>
@@ -296,14 +297,14 @@
   <div class="ts-pair">
     <section class="ts-card" id="simulation">
       <h2>SOM under uncertainty</h2>
-      <p class="ts-note"><span data-draw="v" data-v="mc-n" data-source="companies screen_stats cases tiers settings segments">—</span> draws, each driver taken from a triangular distribution: Low as minimum, Base as most likely, High as maximum. Median <b data-draw="v" data-v="mc-p50" data-source="companies screen_stats cases tiers settings segments">—</b>; <b data-draw="v" data-v="mc-above" data-source="companies screen_stats cases tiers settings segments">—</b> of draws beat the Base case.</p>
-      <div class="ts-chart" data-draw="montecarlo" data-source="companies screen_stats cases tiers settings segments"></div>
+      <p class="ts-note"><span data-draw="v" data-v="mc-n" data-source="cases tiers settings segments">—</span> draws, each driver taken from a triangular distribution: Low as minimum, Base as most likely, High as maximum. Median <b data-draw="v" data-v="mc-p50" data-source="cases tiers settings segments">—</b>; <b data-draw="v" data-v="mc-above" data-source="cases tiers settings segments">—</b> of draws beat the Base case.</p>
+      <div class="ts-chart" data-draw="montecarlo" data-source="cases tiers settings segments"></div>
     </section>
 
     <section class="ts-card" id="sensitivity">
       <h2>What moves Base SOM most</h2>
       <p class="ts-note">Each driver moved alone to its Low or High value, the others held at Base. Biggest swing first.</p>
-      <div class="ts-chart" data-draw="tornado" data-source="companies screen_stats cases tiers settings segments"></div>
+      <div class="ts-chart" data-draw="tornado" data-source="cases tiers settings segments"></div>
     </section>
   </div>
 
@@ -323,22 +324,22 @@
         </div>
       </div>
       <p class="ts-note">Chosen segments, largest first, with each one's share of the total. Click a segment to focus every figure on it; click again to clear.</p>
-      <div class="ts-chart" data-draw="breakdown" data-source="companies screen_stats cases tiers settings segments"></div>
+      <div class="ts-chart" data-draw="breakdown" data-source="cases tiers settings segments"></div>
     </section>
 
     <section class="ts-card" id="revenue">
       <h2>Company revenue</h2>
       <p class="ts-note">Companies in the chosen segments and countries by LTM revenue, log scale. The shaded band is the revenue range counted; dashed lines are Aprix tier thresholds at the FX rate set.</p>
-      <div class="ts-chart" data-draw="revenue" data-source="companies screen_stats cases tiers settings segments"></div>
+      <div class="ts-chart" data-draw="revenue" data-source="cases tiers settings segments"></div>
     </section>
   </div>
 
   <section class="ts-card" id="notes">
     <h2>Notes</h2>
     <ul class="ts-notes">
-      <li data-note="topdown">The <span data-draw="v" data-v="case">—</span> case TAM is <b data-draw="v" data-v="td-share" data-source="companies screen_stats cases tiers settings segments">—</b> of the published top-down estimate of <span data-draw="v" data-v="td-range" data-source="settings">—</span>.</li>
+      <li data-note="topdown">The <span data-draw="v" data-v="case">—</span> case TAM is <b data-draw="v" data-v="td-share" data-source="cases tiers settings segments">—</b> of the published top-down estimate of <span data-draw="v" data-v="td-range" data-source="settings">—</span>.</li>
       <li data-note="capacity">Sales capacity never limits SOM in these cases, so the win rate decides it and clients signed a year has no effect.</li>
-      <li data-note="cut">The export is incomplete: <span data-draw="v" data-v="exported" data-source="screen_stats">—</span> of about <span data-draw="v" data-v="screen-total" data-source="settings">—</span> companies. About <span data-draw="v" data-v="missing" data-source="screen_stats settings">—</span> below <span data-draw="v" data-v="floor" data-source="screen_stats">—</span> revenue are missing, of which an estimated <span data-draw="v" data-v="est-inscope" data-source="companies screen_stats settings">—</span> are in scope. <span data-note="cut-in">They are included.</span><span data-note="cut-out">They are not included; add them under Edit assumptions.</span></li>
+      <li data-note="cut">The export is incomplete: <span data-draw="v" data-v="exported">—</span> of about <span data-draw="v" data-v="screen-total" data-source="settings">—</span> companies. About <span data-draw="v" data-v="missing" data-source="settings">—</span> below <span data-draw="v" data-v="floor">—</span> revenue are missing, of which an estimated <span data-draw="v" data-v="est-inscope" data-source="settings">—</span> are in scope. <span data-note="cut-in">They are included.</span><span data-note="cut-out">They are not included; add them under Edit assumptions.</span></li>
       <li data-note="screen-max">The screen stops at <span data-draw="v" data-v="screen-max" data-source="settings">—</span> revenue, so larger companies are not counted.</li>
     </ul>
   </section>
@@ -348,16 +349,16 @@
       <h2>Companies in scope</h2>
       <input class="ts-in ts-search" id="company-search" type="search" placeholder="Search companies" aria-label="Search companies">
     </div>
-    <p class="ts-note"><span data-draw="rows-n" data-source="companies">—</span> companies. Real rows only; the cut-off estimate is not listed.</p>
+    <p class="ts-note"><span data-draw="rows-n">—</span> companies. Real rows only; the cut-off estimate is not listed.</p>
     <div class="ts-table-box">
-      <table class="ts-table" data-source="companies" data-row-key="company,revenue_usd_m">
+      <table class="ts-table">
         <thead><tr>
-          <th data-field="company" aria-sort="none"><button class="ts-sort" type="button" data-sort="company">Company</button></th>
-          <th data-field="segment" aria-sort="none"><button class="ts-sort" type="button" data-sort="segment">Segment</button></th>
-          <th data-field="revenue_usd_m" class="ts-num" aria-sort="descending"><button class="ts-sort" type="button" data-sort="revenue_usd_m">Revenue (US$M)</button></th>
-          <th data-field="country" class="ts-hide-narrow" aria-sort="none"><button class="ts-sort" type="button" data-sort="country">Country</button></th>
+          <th aria-sort="none"><button class="ts-sort" type="button" data-sort="company">Company</button></th>
+          <th aria-sort="none"><button class="ts-sort" type="button" data-sort="segment">Segment</button></th>
+          <th class="ts-num" aria-sort="descending"><button class="ts-sort" type="button" data-sort="revenue_usd_m">Revenue (US$M)</button></th>
+          <th class="ts-hide-narrow" aria-sort="none"><button class="ts-sort" type="button" data-sort="country">Country</button></th>
         </tr></thead>
-        <tbody data-draw="company-rows" data-source="companies"></tbody>
+        <tbody data-draw="company-rows"></tbody>
       </table>
     </div>
   </section>
@@ -365,18 +366,6 @@
 
 <script src="model.js"></script>
 <script>
-  dash.calc('companies', {
-    title: 'Companies by segment',
-    description: 'Screen rows whose Capital IQ industry maps to a segment, with country from location, duplicates dropped.',
-    inputs: ['screen', 'segments'],
-    fn: ts.calcCompanies,
-  });
-  dash.calc('screen_stats', {
-    title: 'Export size and floor',
-    description: 'Rows exported, the smallest revenue in the export, and companies within 1.5× of it.',
-    inputs: ['screen'],
-    fn: ts.calcScreenStats,
-  });
   dash.loader('drive_screen', {
     description: 'The downloaded Drive file (CSV, .xlsx or a Google Sheet exported as .xlsx) read into its Screening rows, with the screen size from its Aggregates and Screen Criteria sheets.',
     fn: ts.readScreenFile,
@@ -555,8 +544,10 @@
     let msg = window.tsDataMsg;
     if (!msg && src.kind === 'drive') msg = { connect: 'connect', declined: 'connect', error: 'drive' }[src.status] || null;
     for (const el of all('[data-msg]')) el.hidden = el.dataset.msg !== msg;
-    for (const el of all('.ts-data')) el.classList.toggle('is-custom', src.kind !== 'saved');
-    show('.ts-use-saved', src.kind !== 'saved');
+    for (const el of all('.ts-data')) el.classList.toggle('is-custom', src.kind !== 'none');
+    show('.ts-use-saved', src.kind !== 'none');
+    show('.ts-start', src.kind === 'none');
+    show('.ts-result', src.kind !== 'none');
 
     const r = ok ? m.results[m.sel] : null;
     show('.ts-empty', ok && !r.tamN);

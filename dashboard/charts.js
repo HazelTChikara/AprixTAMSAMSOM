@@ -16,6 +16,7 @@
     el.replaceChildren();
     el.classList.toggle('dash-skeleton', m.status === 'loading');
     if (m.status === 'ok') return m;
+    if (m.status === 'empty') { emptyLine(el, 'Load a Capital IQ export in the Data panel to see this.'); return null; }
     if (m.status !== 'loading') {
       const line = document.createElement('div');
       line.className = 'ts-fail';
@@ -217,11 +218,11 @@
     const size = (n, total) => `${ts.count(n)} companies${ts.finite(total) ? ` of ${ts.count(total)} in the screen` : ''}`;
     if (src.kind === 'drive' && src.status === 'loading') { el.textContent = 'Loading the Drive file…'; return; }
     if (src.kind === 'drive' && src.status !== 'ok') { el.textContent = 'Drive file not loaded'; return; }
+    if (src.kind === 'none') { el.textContent = 'No screen loaded yet'; return; }
     if (m.status !== 'ok') { el.textContent = '—'; return; }
     const n = size(m.est.exported, m.est.screenTotal);
     if (src.kind === 'upload') el.textContent = `Your file · ${src.name} · ${n}`;
-    else if (src.kind === 'drive') el.textContent = `Google Drive file · ${n}`;
-    else el.textContent = `Saved screen · ${n}`;
+    else el.textContent = `Google Drive file · ${n}`;
   });
 
   // ---- Segment chips -----------------------------------------------------------------------
