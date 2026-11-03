@@ -1,0 +1,9 @@
+__pycache__/
+.pytest_cache/
+
+# Capital IQ exports are licensed data: keep them out of the repo.
+*.xls
+*.xlsx
+screening.csv
+dashboard/data/capital-iq-screen.csv
+.DS_Store

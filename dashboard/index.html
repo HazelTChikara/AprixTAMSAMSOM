@@ -1,0 +1,571 @@
+<meta name="dash-one-writer">
+<style>
+  /* Aprix palette: navy #001C36, electric blue #0084F8, green #39B54A, mist #F2F2F2, grey #706F6F. */
+  .ts { --ap-blue: #0084F8; --ap-green: #39B54A; --ap-navy: light-dark(#001C36, #8FB4DC); --ap-deep: #001C36; --ap-mist: light-dark(#F2F2F2, #13202e); --ap-grey: light-dark(#706F6F, #a7a6a6); }
+  .ts { container-type: inline-size; font-family: var(--font-anthropic-sans); color: var(--color-fg); display: grid; gap: var(--cds-gap-lg); }
+  .ts-head { display: grid; gap: var(--cds-gap-sm); padding: var(--cds-pad-xl) var(--cds-pad-lg); border-radius: var(--cds-radius); color: #fff;
+    background: radial-gradient(120% 140% at 100% 0%, rgb(0 132 248 / 0.45), transparent 55%), radial-gradient(80% 120% at 0% 100%, rgb(57 181 74 / 0.18), transparent 60%), linear-gradient(135deg, #001C36, #002b52); box-shadow: 0 12px 32px -16px rgb(0 28 54 / 0.6); }
+  .ts-eyebrow { font-size: var(--cds-font-size-caption); color: #7fc0ff; letter-spacing: 0.08em; text-transform: uppercase; }
+  .ts-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: calc(var(--cds-font-size-title) * 1.35); line-height: 1.1; margin: 0; text-wrap: balance; }
+  .ts-take { margin: 0; color: rgb(255 255 255 / 0.78); font-size: var(--cds-font-size-body); max-width: 70ch; line-height: 1.55; }
+  .ts .ts-note b { color: var(--color-fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ts .ts-take b { color: #fff; font-weight: 600; font-variant-numeric: tabular-nums; border-bottom: 2px solid var(--ap-blue); }
+  .ts-title { color: #fff; }
+
+  .ts-strip { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-sm); justify-content: space-between; padding-block: var(--cds-pad-sm); border-block: 1px solid var(--color-border-line); }
+  .ts-strip-chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+  .ts-chip-static { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 3px 10px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .ts-chip-static.is-strong { color: #fff; background: var(--ap-blue); border-color: var(--ap-blue); font-weight: var(--cds-font-weight-medium); }
+  .ts-chip-static.is-warn { color: var(--color-warn); border-color: var(--color-warn); }
+  .ts-edit { background: var(--ap-deep); color: #fff; border-color: var(--ap-deep); }
+  .ts-btn { font: inherit; font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 6px 12px; cursor: pointer; }
+  .ts-btn:hover { border-color: var(--ap-blue); }
+  .ts-btn-quiet { background: transparent; color: var(--color-fg-muted); }
+
+  .ts-drawer { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: var(--cds-gap-md); }
+  .ts-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-md); min-width: 0; align-content: start; }
+  .ts-card h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; color: var(--ap-navy); }
+  .ts-card > h2::before, .ts-card-head > h2::before { content: ""; display: inline-block; width: 4px; height: 0.9em; border-radius: 2px; background: var(--ap-blue); margin-right: 8px; vertical-align: -0.08em; }
+  .ts-card-head { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); align-items: center; justify-content: space-between; }
+  .ts-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  .ts-note { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); max-width: 72ch; line-height: 1.5; }
+  .ts-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); }
+  .ts-row { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: end; }
+  .ts-drawer-foot { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; grid-column: 1 / -1; }
+
+  .ts-grid { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); }
+  .ts-grid th { font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); text-align: left; padding: 0 0 6px; }
+  .ts-grid td { padding: 3px 0; }
+  .ts-grid td + td, .ts-grid th + th { padding-left: 6px; }
+  .ts-grid td:first-child { color: var(--color-fg-muted); padding-right: 6px; }
+  .ts-in { width: 100%; min-width: 0; box-sizing: border-box; font: inherit; font-variant-numeric: tabular-nums; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 5px 7px; }
+  .ts-in.is-changed { border-color: var(--color-warn); box-shadow: inset 0 0 0 1px var(--color-warn); }
+  .ts-field { display: grid; gap: 4px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); flex: 1 1 7rem; }
+  .ts-chip-block { display: grid; gap: 6px; }
+  .ts-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ts-picks { display: grid; gap: var(--cds-gap-sm); min-height: 6rem; }
+  .ts-chip { font: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); background: transparent; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 4px 10px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+  .ts-chip[aria-pressed="true"] { color: var(--ap-navy); background: color-mix(in srgb, var(--ap-blue) 12%, transparent); border-color: var(--ap-blue); font-weight: var(--cds-font-weight-medium); }
+  .ts-chip-n { font-variant-numeric: tabular-nums; opacity: 0.7; font-weight: 400; }
+
+  .ts-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; background: var(--color-bg); }
+  .ts-seg button { font: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); background: transparent; border: 0; padding: 5px 11px; cursor: pointer; }
+  .ts-seg button + button { border-left: 1px solid var(--color-border-line); }
+  .ts-seg button[aria-pressed="true"] { background: var(--color-panel); color: var(--color-fg); font-weight: var(--cds-font-weight-medium); box-shadow: inset 0 -2px 0 var(--ap-blue); color: var(--ap-navy); }
+  .ts button:focus-visible, .ts-in:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 1px; }
+
+  .ts-hero { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: var(--cds-gap-xl); align-items: center; }
+  @container (max-width: 760px) { .ts-hero { grid-template-columns: minmax(0, 1fr); } }
+  .ts-kpis { display: grid; gap: 0; }
+  .ts-kpi { display: grid; gap: 4px; padding-block: var(--cds-pad-md); border-top: 1px solid var(--color-border-line); }
+  .ts-kpi:first-child { border-top: 0; padding-top: 0; }
+  .ts-kpi-top { display: flex; align-items: center; gap: 8px; }
+  .ts-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; border: 1.5px solid var(--color-fg-muted); }
+  .ts-kpi-tag { font-size: var(--cds-font-size-caption); font-weight: 600; letter-spacing: 0.08em; color: var(--ap-navy); }
+  .ts-dot[data-ring="TAM"] { border-color: var(--ap-blue); background: color-mix(in srgb, var(--ap-blue) 15%, transparent); }
+  .ts-dot[data-ring="SAM"] { border-color: var(--ap-blue); background: color-mix(in srgb, var(--ap-blue) 45%, transparent); }
+  .ts-dot[data-ring="SOM"] { border-color: var(--ap-green); background: var(--ap-green); }
+  #kpi-som .ts-big { background: linear-gradient(120deg, var(--ap-navy), var(--ap-green)); -webkit-background-clip: text; background-clip: text; }
+  .ts-kpi-def { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .ts-big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: calc(var(--cds-font-size-title) * 1.5); line-height: 1.05; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .ts-kpi-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+  .ts-range { position: relative; min-height: 34px; margin-top: 4px; }
+
+  .ts-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: var(--cds-gap-md); }
+  .ts-chart { position: relative; min-height: 200px; }
+  .ts-chart-hero { min-height: 280px; }
+  .ts-svg { display: block; overflow: visible; font-size: var(--cds-font-size-body); }
+  .ts-svg text { fill: var(--color-fg); }
+  .ts-svg .ts-tick { fill: var(--color-fg-muted); font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+  .ts-svg .ts-small { font-size: var(--cds-font-size-caption); }
+  .ts-svg .ts-strong { font-weight: 600; }
+  .ts-svg .ts-ring-tag { font-size: var(--cds-font-size-caption); font-weight: 600; letter-spacing: 0.1em; fill: var(--color-fg-muted); }
+  .ts-svg .ts-ring-val { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; }
+  .ts-svg .ts-on-accent { fill: #fff; }
+  .ts-legend { display: flex; flex-wrap: wrap; gap: 4px var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-bottom: var(--cds-gap-sm); }
+  .ts-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+  .ts-sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; flex: none; }
+  .ts-sw-line { height: 0; width: 14px; border-top: 2px dashed; border-radius: 0; }
+  .ts-tip { position: absolute; z-index: 2; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); display: grid; gap: 2px; white-space: nowrap; }
+  .ts-tip-title { color: var(--cds-text-secondary); }
+  .ts-tip-row { display: flex; align-items: center; gap: 6px; }
+  .ts-tip-row b { margin-left: auto; padding-left: var(--cds-gap-md); font-variant-numeric: tabular-nums; }
+  .ts-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .ts-fail-dot { width: 0.375rem; height: 0.375rem; border-radius: 50%; background: var(--color-bad); }
+  .ts-empty-line { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .ts-warn { margin: 0; color: var(--color-warn); font-size: var(--cds-font-size-caption); }
+
+  .ts-notes { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; max-width: 84ch; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; }
+  .ts-search { max-width: 18rem; }
+  .ts-table-box { max-height: 26rem; overflow: auto; }
+  .ts-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+  .ts-table th { position: sticky; top: 0; background: var(--color-panel); text-align: left; padding: 0; border-bottom: 1px solid var(--color-border-line); }
+  .ts-table td { padding: 7px 8px; border-bottom: 1px solid var(--color-border-line); }
+  .ts-table tbody tr:hover td { background: var(--color-bg); }
+  .ts-table .ts-num { text-align: right; }
+  .ts-sort { font: inherit; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); background: none; border: 0; padding: 7px 8px; cursor: pointer; width: 100%; text-align: inherit; }
+  .ts-table th[aria-sort="ascending"] .ts-sort, .ts-table th[aria-sort="descending"] .ts-sort { color: var(--color-fg); }
+  @container (max-width: 520px) { .ts-hide-narrow { display: none; } }
+  [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+  .ts-data-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--cds-gap-md); align-items: stretch; }
+  @container (max-width: 640px) { .ts-data-grid { grid-template-columns: minmax(0, 1fr); } }
+  .ts-data-now { display: inline-flex; align-items: center; gap: 8px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; min-width: 0; }
+  .ts-data-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ap-green); flex: none; }
+  .ts-data.is-custom .ts-data-dot { background: var(--ap-blue); }
+  .ts-drop { position: relative; display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 7.5rem; padding: var(--cds-pad-md); text-align: center; border: 1.5px dashed color-mix(in srgb, var(--ap-blue) 55%, var(--color-border-line)); border-radius: var(--cds-radius); background: color-mix(in srgb, var(--ap-blue) 5%, transparent); cursor: pointer; transition: background var(--cds-dur-slow), border-color var(--cds-dur-slow); }
+  .ts-drop:hover, .ts-drop.is-over { background: color-mix(in srgb, var(--ap-blue) 12%, transparent); border-color: var(--ap-blue); }
+  .ts-drop:focus-within { outline: 2px solid var(--ap-blue); outline-offset: 2px; }
+  .ts-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .ts-drop-icon { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--ap-blue); color: #fff; font-weight: 600; }
+  .ts-drop-title { font-weight: var(--cds-font-weight-medium); color: var(--ap-navy); }
+  .ts-drop-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .ts-drop-busy { display: none; font-size: var(--cds-font-size-caption); color: var(--ap-blue); font-weight: var(--cds-font-weight-medium); }
+  .ts-drop.is-busy .ts-drop-busy { display: block; }
+  .ts-drop.is-busy .ts-drop-sub { display: none; }
+  .ts-drive { display: grid; gap: var(--cds-gap-sm); align-content: center; padding: var(--cds-pad-md); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+  .ts-drive-row { display: flex; gap: var(--cds-gap-sm); }
+  .ts-drive-row .ts-in { flex: 1; }
+  .ts-drive-load { background: var(--ap-blue); color: #fff; border-color: var(--ap-blue); }
+  .ts-data-foot { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); align-items: center; justify-content: space-between; }
+  .ts-svg .ts-mark { transition: opacity var(--cds-dur-slow) var(--cds-ease-out), filter var(--cds-dur-slow) var(--cds-ease-out); }
+  .ts-svg .ts-mark.is-dim { opacity: 0.35; }
+  .ts-svg .ts-mark.is-faded { opacity: 0.3; }
+  .ts-svg .ts-clickable { cursor: pointer; }
+  .ts-chip-static.is-focus { font: inherit; font-size: var(--cds-font-size-caption); cursor: pointer; color: #fff; background: var(--ap-green); border-color: var(--ap-green); }
+  .ts-table td.ts-bar-cell { background: linear-gradient(to left, color-mix(in srgb, var(--c) 22%, transparent) var(--w), transparent var(--w)); }
+  .ts-big { background: linear-gradient(120deg, var(--ap-navy), var(--ap-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+</style>
+
+<div class="ts">
+  <header class="ts-head" id="top">
+    <div class="ts-eyebrow">Market sizing · US and Canada · Capital IQ screen</div>
+    <h1 class="ts-title">TAM SAM SOM model</h1>
+    <p class="ts-take">The <b data-draw="v" data-v="case">—</b> case puts TAM at <b data-draw="v" data-v="TAM" data-source="companies screen_stats cases tiers settings segments">—</b>, SAM at <b data-draw="v" data-v="SAM" data-source="companies screen_stats cases tiers settings segments">—</b> and SOM at <b data-draw="v" data-v="SOM" data-source="companies screen_stats cases tiers settings segments">—</b> by year <span data-draw="v" data-v="years" data-source="settings">—</span>, set by the <span data-draw="v" data-v="limit" data-source="companies screen_stats cases tiers settings segments">—</span>. Across <span data-draw="v" data-v="mc-n" data-source="companies screen_stats cases tiers settings segments">—</span> simulated scenarios, SOM lands between <b data-draw="v" data-v="mc-p10" data-source="companies screen_stats cases tiers settings segments">—</b> and <b data-draw="v" data-v="mc-p90" data-source="companies screen_stats cases tiers settings segments">—</b> four times in five.</p>
+  </header>
+
+  <div class="ts-strip" id="scenario">
+    <div class="ts-strip-chips" data-draw="scenario" data-source="companies screen_stats cases tiers settings segments">—</div>
+    <button class="ts-btn ts-edit" type="button" aria-expanded="false" aria-controls="assumptions">Edit assumptions</button>
+  </div>
+
+  <section class="ts-card ts-data" id="data">
+    <div class="ts-card-head">
+      <h2>Data</h2>
+      <div class="ts-data-now"><span class="ts-data-dot"></span><span data-draw="source-status">—</span></div>
+    </div>
+    <div class="ts-data-grid">
+      <label class="ts-drop" id="drop-zone" for="file-input">
+        <input class="ts-file" id="file-input" type="file" accept=".csv,.tsv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        <span class="ts-drop-icon" aria-hidden="true">↑</span>
+        <span class="ts-drop-title">Drop a Capital IQ export here</span>
+        <span class="ts-drop-sub">or click to choose a .csv or .xlsx file</span>
+        <span class="ts-drop-busy">Reading the file…</span>
+      </label>
+      <div class="ts-drive">
+        <label class="ts-label" for="drive-link">Or paste a Google Drive link</label>
+        <div class="ts-drive-row">
+          <input class="ts-in" id="drive-link" type="url" placeholder="https://drive.google.com/file/d/…" autocomplete="off">
+          <button class="ts-btn ts-drive-load" type="button">Load</button>
+        </div>
+        <p class="ts-note">A CSV, .xlsx or Google Sheet you can open. It loads through your own Google Drive connection.</p>
+      </div>
+    </div>
+    <p class="ts-warn" data-msg="xls" hidden>That is an old .xls file. In Excel, save it as .xlsx (or CSV) and load it again.</p>
+    <p class="ts-warn" data-msg="bad" hidden>That file has no Company Name and Total Revenue columns, so it doesn't look like a Capital IQ screen.</p>
+    <p class="ts-warn" data-msg="read" hidden>That file couldn't be read. Try saving it again as .xlsx or CSV.</p>
+    <p class="ts-warn" data-msg="link" hidden>That doesn't look like a Google Drive link. Copy the link from Drive's Share menu and paste it here.</p>
+    <p class="ts-warn" data-msg="drive" hidden>The Drive file didn't load. Check that you can open it and that it is a CSV, .xlsx or Google Sheet.</p>
+    <p class="ts-warn" data-msg="connect" hidden>Connect Google Drive to load this file.</p>
+    <div class="ts-data-foot">
+      <p class="ts-note">A file loaded here is used in your browser for this visit only, and Drive links use each viewer's own access. To change the saved screen for everyone, replace the screen file in Sources.</p>
+      <button class="ts-btn ts-btn-quiet ts-use-saved" type="button" hidden>Back to the saved screen</button>
+    </div>
+  </section>
+
+  <div class="ts-drawer" id="assumptions" hidden>
+    <section class="ts-card" id="drivers" aria-label="Drivers by case">
+      <h2>Drivers</h2>
+      <table class="ts-grid">
+        <thead><tr><th scope="col">Driver</th><th scope="col">Low</th><th scope="col">Base</th><th scope="col">High</th></tr></thead>
+        <tbody>
+          <tr><td>Share that fit (%)</td>
+            <td><input class="ts-in ts-case" id="case-low-fit" type="number" min="0" max="100" step="1" data-case="Low" data-k="fit" aria-label="Low case share that fit, percent"></td>
+            <td><input class="ts-in ts-case" id="case-base-fit" type="number" min="0" max="100" step="1" data-case="Base" data-k="fit" aria-label="Base case share that fit, percent"></td>
+            <td><input class="ts-in ts-case" id="case-high-fit" type="number" min="0" max="100" step="1" data-case="High" data-k="fit" aria-label="High case share that fit, percent"></td></tr>
+          <tr><td>Yearly contract (US$)</td>
+            <td><input class="ts-in ts-case" id="case-low-acv" type="number" min="0" step="1000" data-case="Low" data-k="acv" aria-label="Low case yearly contract, US dollars"></td>
+            <td><input class="ts-in ts-case" id="case-base-acv" type="number" min="0" step="1000" data-case="Base" data-k="acv" aria-label="Base case yearly contract, US dollars"></td>
+            <td><input class="ts-in ts-case" id="case-high-acv" type="number" min="0" step="1000" data-case="High" data-k="acv" aria-label="High case yearly contract, US dollars"></td></tr>
+          <tr><td>Win rate by year 3 (%)</td>
+            <td><input class="ts-in ts-case" id="case-low-win" type="number" min="0" max="100" step="0.5" data-case="Low" data-k="win" aria-label="Low case win rate by year 3, percent"></td>
+            <td><input class="ts-in ts-case" id="case-base-win" type="number" min="0" max="100" step="0.5" data-case="Base" data-k="win" aria-label="Base case win rate by year 3, percent"></td>
+            <td><input class="ts-in ts-case" id="case-high-win" type="number" min="0" max="100" step="0.5" data-case="High" data-k="win" aria-label="High case win rate by year 3, percent"></td></tr>
+          <tr><td>Clients signed a year</td>
+            <td><input class="ts-in ts-case" id="case-low-cap" type="number" min="0" step="1" data-case="Low" data-k="cap" aria-label="Low case clients signed per year"></td>
+            <td><input class="ts-in ts-case" id="case-base-cap" type="number" min="0" step="1" data-case="Base" data-k="cap" aria-label="Base case clients signed per year"></td>
+            <td><input class="ts-in ts-case" id="case-high-cap" type="number" min="0" step="1" data-case="High" data-k="cap" aria-label="High case clients signed per year"></td></tr>
+        </tbody>
+      </table>
+      <p class="ts-note">An orange box differs from the saved cases file.</p>
+    </section>
+
+    <section class="ts-card" id="scope" aria-label="Who counts">
+      <h2>Who counts</h2>
+      <div class="ts-picks" data-draw="seg-picks" data-source="segments companies"></div>
+      <div class="ts-chip-block">
+        <div class="ts-label">Countries</div>
+        <div class="ts-chips">
+          <button class="ts-chip ts-country" type="button" data-country="United States">United States</button>
+          <button class="ts-chip ts-country" type="button" data-country="Canada">Canada</button>
+        </div>
+      </div>
+      <div class="ts-row">
+        <label class="ts-field">Revenue from (US$M)<input class="ts-in" id="rev-min" type="number" min="0" step="10"></label>
+        <label class="ts-field">to (US$M)<input class="ts-in" id="rev-max" type="number" min="0" step="10"></label>
+      </div>
+    </section>
+
+    <section class="ts-card" id="pricing" aria-label="Price and FX">
+      <h2>Price and FX</h2>
+      <div class="ts-chip-block">
+        <div class="ts-label">Contract value</div>
+        <div class="ts-seg" role="group" aria-label="Contract value">
+          <button type="button" data-param="pricing" data-value="flat">Flat, by case</button>
+          <button type="button" data-param="pricing" data-value="tier">Aprix tier prices</button>
+        </div>
+      </div>
+      <div class="ts-row">
+        <label class="ts-field">BRL per USD<input class="ts-in" id="fx" type="number" min="0.1" step="0.1"></label>
+      </div>
+      <div class="ts-chip-block ts-estimate-row" hidden>
+        <div class="ts-label">Export cut-off</div>
+        <div class="ts-chips"><button class="ts-chip" id="estimate" type="button">Add about <span data-draw="v" data-v="est-inscope" data-source="companies screen_stats settings">—</span> companies cut off by the export</button></div>
+      </div>
+    </section>
+
+    <div class="ts-drawer-foot">
+      <button class="ts-btn ts-reset" type="button">Reset to saved assumptions</button>
+      <button class="ts-btn ts-btn-quiet ts-close" type="button">Close</button>
+      <p class="ts-warn ts-changed-note" hidden>Showing your changes. They are not saved to the files.</p>
+    </div>
+  </div>
+
+  <p class="ts-warn ts-empty" hidden>No companies match. Choose at least one segment and one country, or widen the revenue range.</p>
+
+  <section class="ts-card" id="market-size">
+    <div class="ts-card-head">
+      <h2>Market size</h2>
+      <div class="ts-controls">
+        <div class="ts-seg" role="group" aria-label="Chart">
+          <button type="button" data-param="view" data-value="circles">Circles</button>
+          <button type="button" data-param="view" data-value="funnel">Funnel</button>
+        </div>
+        <div class="ts-seg" role="group" aria-label="Case">
+          <button type="button" data-param="case" data-value="Low">Low</button>
+          <button type="button" data-param="case" data-value="Base">Base</button>
+          <button type="button" data-param="case" data-value="High">High</button>
+        </div>
+      </div>
+    </div>
+    <div class="ts-hero">
+      <div class="ts-chart ts-chart-hero" data-draw="size" data-source="companies screen_stats cases tiers settings segments"></div>
+      <div class="ts-kpis">
+        <div class="ts-kpi" id="kpi-tam">
+          <div class="ts-kpi-top"><span class="ts-dot" data-ring="TAM"></span><span class="ts-kpi-tag">TAM</span><span class="ts-kpi-def">every company in scope</span></div>
+          <div class="ts-big" data-draw="v" data-v="TAM" data-source="companies screen_stats cases tiers settings segments">—</div>
+          <div class="ts-kpi-sub" data-draw="v" data-v="tamN" data-source="companies screen_stats cases tiers settings segments">—</div>
+          <div class="ts-range" data-draw="range" data-m="TAM" data-source="companies screen_stats cases tiers settings segments"></div>
+        </div>
+        <div class="ts-kpi" id="kpi-sam">
+          <div class="ts-kpi-top"><span class="ts-dot" data-ring="SAM"></span><span class="ts-kpi-tag">SAM</span><span class="ts-kpi-def">the share that fit</span></div>
+          <div class="ts-big" data-draw="v" data-v="SAM" data-source="companies screen_stats cases tiers settings segments">—</div>
+          <div class="ts-kpi-sub" data-draw="v" data-v="samN" data-source="companies screen_stats cases tiers settings segments">—</div>
+          <div class="ts-range" data-draw="range" data-m="SAM" data-source="companies screen_stats cases tiers settings segments"></div>
+        </div>
+        <div class="ts-kpi" id="kpi-som">
+          <div class="ts-kpi-top"><span class="ts-dot" data-ring="SOM"></span><span class="ts-kpi-tag">SOM</span><span class="ts-kpi-def">what you can win</span></div>
+          <div class="ts-big" data-draw="v" data-v="SOM" data-source="companies screen_stats cases tiers settings segments">—</div>
+          <div class="ts-kpi-sub" data-draw="v" data-v="somN" data-source="companies screen_stats cases tiers settings segments">—</div>
+          <div class="ts-range" data-draw="range" data-m="SOM" data-source="companies screen_stats cases tiers settings segments"></div>
+        </div>
+      </div>
+    </div>
+    <p class="ts-note">TAM is companies in scope times the yearly contract. SAM keeps the share that fit. SOM applies the win rate to SAM, capped at <span data-draw="v" data-v="years" data-source="settings">—</span> years of sales capacity. Circle areas are to scale. The range bars place the chosen case between Low and High.</p>
+  </section>
+
+  <div class="ts-pair">
+    <section class="ts-card" id="simulation">
+      <h2>SOM under uncertainty</h2>
+      <p class="ts-note"><span data-draw="v" data-v="mc-n" data-source="companies screen_stats cases tiers settings segments">—</span> draws, each driver taken from a triangular distribution: Low as minimum, Base as most likely, High as maximum. Median <b data-draw="v" data-v="mc-p50" data-source="companies screen_stats cases tiers settings segments">—</b>; <b data-draw="v" data-v="mc-above" data-source="companies screen_stats cases tiers settings segments">—</b> of draws beat the Base case.</p>
+      <div class="ts-chart" data-draw="montecarlo" data-source="companies screen_stats cases tiers settings segments"></div>
+    </section>
+
+    <section class="ts-card" id="sensitivity">
+      <h2>What moves Base SOM most</h2>
+      <p class="ts-note">Each driver moved alone to its Low or High value, the others held at Base. Biggest swing first.</p>
+      <div class="ts-chart" data-draw="tornado" data-source="companies screen_stats cases tiers settings segments"></div>
+    </section>
+  </div>
+
+  <div class="ts-pair">
+    <section class="ts-card" id="breakdown">
+      <div class="ts-card-head">
+        <h2>Where the market is</h2>
+        <div class="ts-controls">
+          <div class="ts-seg" role="group" aria-label="Measure">
+            <button type="button" data-param="measure" data-value="companies">Companies</button>
+            <button type="button" data-param="measure" data-value="tam">TAM</button>
+          </div>
+          <div class="ts-seg" role="group" aria-label="Split by">
+            <button type="button" data-param="stack" data-value="tier">Tier</button>
+            <button type="button" data-param="stack" data-value="country">Country</button>
+          </div>
+        </div>
+      </div>
+      <p class="ts-note">Chosen segments, largest first, with each one's share of the total. Click a segment to focus every figure on it; click again to clear.</p>
+      <div class="ts-chart" data-draw="breakdown" data-source="companies screen_stats cases tiers settings segments"></div>
+    </section>
+
+    <section class="ts-card" id="revenue">
+      <h2>Company revenue</h2>
+      <p class="ts-note">Companies in the chosen segments and countries by LTM revenue, log scale. The shaded band is the revenue range counted; dashed lines are Aprix tier thresholds at the FX rate set.</p>
+      <div class="ts-chart" data-draw="revenue" data-source="companies screen_stats cases tiers settings segments"></div>
+    </section>
+  </div>
+
+  <section class="ts-card" id="notes">
+    <h2>Notes</h2>
+    <ul class="ts-notes">
+      <li data-note="topdown">The <span data-draw="v" data-v="case">—</span> case TAM is <b data-draw="v" data-v="td-share" data-source="companies screen_stats cases tiers settings segments">—</b> of the published top-down estimate of <span data-draw="v" data-v="td-range" data-source="settings">—</span>.</li>
+      <li data-note="capacity">Sales capacity never limits SOM in these cases, so the win rate decides it and clients signed a year has no effect.</li>
+      <li data-note="cut">The export is incomplete: <span data-draw="v" data-v="exported" data-source="screen_stats">—</span> of about <span data-draw="v" data-v="screen-total" data-source="settings">—</span> companies. About <span data-draw="v" data-v="missing" data-source="screen_stats settings">—</span> below <span data-draw="v" data-v="floor" data-source="screen_stats">—</span> revenue are missing, of which an estimated <span data-draw="v" data-v="est-inscope" data-source="companies screen_stats settings">—</span> are in scope. <span data-note="cut-in">They are included.</span><span data-note="cut-out">They are not included; add them under Edit assumptions.</span></li>
+      <li data-note="screen-max">The screen stops at <span data-draw="v" data-v="screen-max" data-source="settings">—</span> revenue, so larger companies are not counted.</li>
+    </ul>
+  </section>
+
+  <section class="ts-card" id="companies">
+    <div class="ts-card-head">
+      <h2>Companies in scope</h2>
+      <input class="ts-in ts-search" id="company-search" type="search" placeholder="Search companies" aria-label="Search companies">
+    </div>
+    <p class="ts-note"><span data-draw="rows-n" data-source="companies">—</span> companies. Real rows only; the cut-off estimate is not listed.</p>
+    <div class="ts-table-box">
+      <table class="ts-table" data-source="companies" data-row-key="company,revenue_usd_m">
+        <thead><tr>
+          <th data-field="company" aria-sort="none"><button class="ts-sort" type="button" data-sort="company">Company</button></th>
+          <th data-field="segment" aria-sort="none"><button class="ts-sort" type="button" data-sort="segment">Segment</button></th>
+          <th data-field="revenue_usd_m" class="ts-num" aria-sort="descending"><button class="ts-sort" type="button" data-sort="revenue_usd_m">Revenue (US$M)</button></th>
+          <th data-field="country" class="ts-hide-narrow" aria-sort="none"><button class="ts-sort" type="button" data-sort="country">Country</button></th>
+        </tr></thead>
+        <tbody data-draw="company-rows" data-source="companies"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script src="model.js"></script>
+<script>
+  dash.calc('companies', {
+    title: 'Companies by segment',
+    description: 'Screen rows whose Capital IQ industry maps to a segment, with country from location, duplicates dropped.',
+    inputs: ['screen', 'segments'],
+    fn: ts.calcCompanies,
+  });
+  dash.calc('screen_stats', {
+    title: 'Export size and floor',
+    description: 'Rows exported, the smallest revenue in the export, and companies within 1.5× of it.',
+    inputs: ['screen'],
+    fn: ts.calcScreenStats,
+  });
+  dash.loader('drive_screen', {
+    description: 'The downloaded Drive file (CSV, .xlsx or a Google Sheet exported as .xlsx) read into its Screening rows, with the screen size from its Aggregates and Screen Criteria sheets.',
+    fn: ts.readScreenFile,
+  });
+</script>
+<script src="charts.js"></script>
+<script>
+  const DEFAULTS = { view: 'circles', case: 'Base', stack: 'tier', measure: 'companies', pricing: 'flat' };
+  const SCALE = { fit: 100, win: 100, acv: 1, cap: 1 };
+  const readOver = () => { try { return JSON.parse(dash.params().cases || '{}'); } catch { return {}; } };
+  const all = (sel) => document.querySelectorAll(sel);
+
+  const setDrawer = (open) => {
+    for (const d of all('#assumptions')) d.hidden = !open;
+    for (const b of all('.ts-edit')) b.setAttribute('aria-expanded', String(open));
+  };
+  for (const b of all('.ts-edit')) b.addEventListener('click', () => setDrawer(b.getAttribute('aria-expanded') !== 'true'));
+  for (const b of all('.ts-close')) b.addEventListener('click', () => setDrawer(false));
+
+  for (const b of all('[data-param]')) {
+    b.addEventListener('click', () => dash.setParams({ [b.dataset.param]: b.dataset.value }));
+  }
+
+  for (const input of all('.ts-case')) {
+    input.addEventListener('change', () => {
+      const m = ts.model();
+      if (m.status !== 'ok' || input.value === '' || !input.validity.valid) return;
+      const name = input.dataset.case;
+      const k = input.dataset.k;
+      const value = Number(input.value) / SCALE[k];
+      const over = readOver();
+      over[name] = { ...(over[name] || {}) };
+      if (m.fileCases[name] && Math.abs(m.fileCases[name][k] - value) < 1e-9) delete over[name][k];
+      else over[name][k] = value;
+      if (!Object.keys(over[name]).length) delete over[name];
+      dash.setParams({ cases: Object.keys(over).length ? JSON.stringify(over) : null });
+    });
+  }
+
+  for (const [id, param] of [['rev-min', 'rev_min'], ['rev-max', 'rev_max'], ['fx', 'fx']]) {
+    for (const input of all('#' + id)) {
+      input.addEventListener('change', () => {
+        if (input.value === '') dash.setParams({ [param]: null });
+        else if (input.validity.valid) dash.setParams({ [param]: Number(input.value) });
+      });
+    }
+  }
+
+  for (const b of all('.ts-country')) {
+    b.addEventListener('click', () => {
+      const m = ts.model();
+      if (m.status !== 'ok') return;
+      const c = b.dataset.country;
+      const next = m.countries.includes(c) ? m.countries.filter((x) => x !== c) : [...m.countries, c];
+      dash.setParams({ countries: next });
+    });
+  }
+  for (const b of all('#estimate')) {
+    b.addEventListener('click', () => dash.setParams({ estimate: dash.params().estimate !== true }));
+  }
+  for (const b of all('.ts-reset')) {
+    b.addEventListener('click', () => dash.setParams({
+      cases: null, segments: null, countries: null, rev_min: null, rev_max: null, fx: null, pricing: 'flat', estimate: false, focus: null,
+    }));
+  }
+
+  for (const input of all('#company-search')) {
+    input.addEventListener('input', () => {
+      window.tsTable.q = input.value;
+      dash.draw('company-rows');
+      dash.draw('rows-n');
+    });
+  }
+  for (const b of all('.ts-sort')) {
+    b.addEventListener('click', () => {
+      const key = b.dataset.sort;
+      const t = window.tsTable;
+      t.dir = t.key === key ? -t.dir : (key === 'revenue_usd_m' ? -1 : 1);
+      t.key = key;
+      for (const th of all('.ts-table th')) {
+        const on = th.querySelector('.ts-sort')?.dataset.sort === key;
+        th.setAttribute('aria-sort', on ? (t.dir > 0 ? 'ascending' : 'descending') : 'none');
+      }
+      dash.draw('company-rows');
+    });
+  }
+
+  // ---- Loading a screen: a dropped or chosen file, or a Google Drive link ----
+  window.tsDataMsg = null;
+  const redraw = () => dash.setParams({ data_n: (dash.params().data_n || 0) + 1 });
+  const driveId = (link) => {
+    const s = String(link).trim();
+    const m = s.match(/\/d\/([-\w]{20,})/) || s.match(/[?&]id=([-\w]{20,})/) || s.match(/^([-\w]{25,})$/);
+    return m ? m[1] : null;
+  };
+  const loadFile = async (file) => {
+    if (!file) return;
+    const zones = all('#drop-zone');
+    for (const z of zones) z.classList.add('is-busy');
+    try {
+      const res = await ts.readScreenFile({ answer: await file.arrayBuffer() });
+      window.tsUpload = { name: file.name, rows: res.data, meta: res.meta };
+      window.tsDataMsg = null;
+      dash.setParams({ source: 'upload', drive_file: null, data_n: (dash.params().data_n || 0) + 1 });
+    } catch (e) {
+      window.tsDataMsg = ['xls', 'bad'].includes(e.code) ? e.code : 'read';
+      redraw();
+    } finally {
+      for (const z of zones) z.classList.remove('is-busy');
+    }
+  };
+  for (const input of all('#file-input')) {
+    input.addEventListener('change', () => { loadFile(input.files[0]); input.value = ''; });
+  }
+  for (const zone of all('#drop-zone')) {
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('is-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('is-over'));
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.classList.remove('is-over');
+      loadFile(e.dataTransfer.files[0]);
+    });
+  }
+  const loadDrive = () => {
+    for (const input of all('#drive-link')) {
+      const id = driveId(input.value);
+      window.tsDataMsg = id ? null : 'link';
+      if (id) dash.setParams({ drive_file: id, source: null, data_n: (dash.params().data_n || 0) + 1 });
+      else redraw();
+    }
+  };
+  for (const b of all('.ts-drive-load')) b.addEventListener('click', loadDrive);
+  for (const input of all('#drive-link')) {
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadDrive(); });
+  }
+  for (const b of all('.ts-use-saved')) {
+    b.addEventListener('click', () => {
+      window.tsUpload = null;
+      window.tsDataMsg = null;
+      for (const input of all('#drive-link')) input.value = '';
+      dash.setParams({ source: null, drive_file: null, focus: null });
+    });
+  }
+
+  const setValue = (input, v) => {
+    if (input !== document.activeElement) input.value = Number.isFinite(v) ? String(+v.toFixed(4)) : '';
+  };
+  const show = (sel, on) => { for (const el of all(sel)) el.hidden = !on; };
+
+  dash.onData(() => {
+    const p = dash.params();
+    for (const b of all('[data-param]')) {
+      const current = p[b.dataset.param] ?? DEFAULTS[b.dataset.param];
+      b.setAttribute('aria-pressed', String(current === b.dataset.value));
+    }
+    const m = ts.model();
+    const ok = m.status === 'ok';
+    if (ok) {
+      for (const input of all('.ts-case')) {
+        const c = m.cases[input.dataset.case];
+        const k = input.dataset.k;
+        setValue(input, c ? c[k] * SCALE[k] : NaN);
+        input.classList.toggle('is-changed', Boolean(m.over[input.dataset.case] && ts.finite(m.over[input.dataset.case][k])));
+      }
+      for (const input of all('#rev-min')) { setValue(input, m.revMin); input.classList.toggle('is-changed', ts.finite(p.rev_min)); }
+      for (const input of all('#rev-max')) { setValue(input, m.revMax); input.classList.toggle('is-changed', ts.finite(p.rev_max)); }
+      for (const input of all('#fx')) { setValue(input, m.fx); input.classList.toggle('is-changed', ts.finite(p.fx)); }
+      for (const b of all('.ts-country')) b.setAttribute('aria-pressed', String(m.countries.includes(b.dataset.country)));
+      for (const b of all('#estimate')) b.setAttribute('aria-pressed', String(m.estimate));
+    }
+    const changed = ['cases', 'segments', 'countries', 'rev_min', 'rev_max', 'fx'].some((k) => p[k] != null)
+      || p.pricing === 'tier' || p.estimate === true;
+    show('.ts-changed-note', changed);
+
+    const src = ts.activeSource(p);
+    let msg = window.tsDataMsg;
+    if (!msg && src.kind === 'drive') msg = { connect: 'connect', declined: 'connect', error: 'drive' }[src.status] || null;
+    for (const el of all('[data-msg]')) el.hidden = el.dataset.msg !== msg;
+    for (const el of all('.ts-data')) el.classList.toggle('is-custom', src.kind !== 'saved');
+    show('.ts-use-saved', src.kind !== 'saved');
+
+    const r = ok ? m.results[m.sel] : null;
+    show('.ts-empty', ok && !r.tamN);
+    show('.ts-estimate-row', ok && m.est.capped && m.est.missing > 0);
+    show('[data-note="topdown"]', ok && r.tamN > 0 && m.topLow > 0 && m.topHigh > 0);
+    show('[data-note="capacity"]', ok && r.tamN > 0 && Object.values(m.results).every((x) => x.limit === 'win rate'));
+    show('[data-note="cut"]', ok && m.est.capped && m.est.missing > 0);
+    show('[data-note="cut-in"]', ok && m.estimate);
+    show('[data-note="cut-out"]', ok && !m.estimate);
+    show('[data-note="screen-max"]', ok && ts.finite(m.est.screenMax) && m.revMax > m.est.screenMax);
+  });
+</script>

@@ -1,0 +1,15 @@
+segment,group,capital_iq_industry
+Food manufacturing,Core,Packaged Foods and Meats
+Beverages,Core,Brewers
+Beverages,Core,Distillers and Vintners
+Beverages,Core,Soft Drinks and Non-alcoholic Beverages
+Household & personal care,Core,Household Products
+Household & personal care,Core,Personal Care Products
+Fuels,Core,Oil and Gas Refining and Marketing
+Agricultural inputs & products,Adjacent,Fertilizers and Agricultural Chemicals
+Agricultural inputs & products,Adjacent,Agricultural Products and Services
+Food distribution,Adjacent,Food Distributors
+Food & drug retail,Adjacent,Food Retail
+Food & drug retail,Adjacent,Drug Retail
+Food & drug retail,Adjacent,Consumer Staples Merchandise Retail
+Health plans,Adjacent,Managed Health Care

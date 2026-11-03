@@ -1,0 +1,5 @@
+tier,min_revenue_brl_m,target_mrr_brl
+Tier 0,10000,100000
+Tier 1,1500,60000
+Tier 2,500,40000
+Tier 3,200,20000

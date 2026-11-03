@@ -1,0 +1,11 @@
+setting,value,note
+fx_brl_per_usd,5.0,"BRL per USD, from the team analysis deck"
+revenue_min_usd_m,50.0,"Smallest company counted, US$M"
+revenue_max_usd_m,1000.0,"Largest company counted, US$M"
+years,3.0,Years of sales capacity that cap SOM
+base_contract_usd,60000.0,Base yearly contract that tier prices scale against
+top_down_low_usd,400000000.0,"Published North America estimate, low"
+top_down_high_usd,500000000.0,"Published North America estimate, high"
+screen_total_companies,13672.0,"Companies in the Capital IQ screen, from its Aggregates sheet"
+screen_revenue_min_usd_m,50.0,Screen criteria: revenue from
+screen_revenue_max_usd_m,1900.0,Screen criteria: revenue to
