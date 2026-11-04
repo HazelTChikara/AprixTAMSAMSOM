@@ -7,3 +7,5 @@ __pycache__/
 screening.csv
 dashboard/data/capital-iq-screen.csv
 .DS_Store
+dashboard/data/screen_info.csv
+dashboard/data/icp-answers*.csv

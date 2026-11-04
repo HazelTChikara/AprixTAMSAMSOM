@@ -1,6 +1,8 @@
 // TAM / SAM / SOM model, ported from engine.py (Aprix team method).
 // TAM: companies in scope × yearly contract. SAM: TAM × share that fit.
 // SOM: SAM companies × win rate by year N, capped at N years of sales capacity.
+// ICP: each company is checked against the ideal customer profile; answers come from
+// columns in the screen or a viewer's answers file, assumed shares fill the gaps.
 (() => {
   const DRIVERS = [
     ['Yearly contract value', 'acv'],
@@ -9,17 +11,53 @@
     ['Clients signed per year', 'cap'],
   ];
   const KEYS = ['fit', 'acv', 'win', 'cap'];
-  const DATASETS = ['cases', 'tiers', 'settings', 'segments'];
+  const DATASETS = ['cases', 'tiers', 'settings', 'segments', 'icp'];
   const finite = (v) => v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v));
+  const norm = (v) => String(v ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+  // yes / y / true / 1 / x is a yes, no / n / false / 0 a no; anything else is unanswered.
+  const readAnswer = (v) => {
+    const t = norm(v);
+    if (['yes', 'y', 'true', '1', 'x', 'sim', 's'].includes(t)) return true;
+    if (['no', 'n', 'false', '0', 'nao'].includes(t)) return false;
+    return null;
+  };
+  // Which column answers each ICP attribute: its exact name, else a header with one of its match words.
+  const answerColumns = (headers, icp) => {
+    const out = [];
+    for (const a of icp.filter((r) => r.key !== 'revenue')) {
+      const words = String(a.match ?? '').split('|').map(norm).filter(Boolean);
+      const h = headers.find((k) => norm(k) === norm(a.column))
+        || headers.find((k) => k !== 'Company Name' && !k.startsWith('Total Revenue') && words.some((w) => norm(k).includes(w)));
+      if (h) out.push([a.key, h]);
+    }
+    return out;
+  };
+  const answersOf = (row, cols) => {
+    const out = {};
+    for (const [key, h] of cols) out[key] = readAnswer(row[h]);
+    return out;
+  };
+  // A viewer's answers file: company name to answers.
+  const answersFrom = (rows, icp) => {
+    const cols = answerColumns(Object.keys(rows[0] || {}), icp);
+    const map = new Map();
+    for (const r of rows) {
+      const name = norm(r['Company Name']);
+      if (name) map.set(name, answersOf(r, cols));
+    }
+    return { map, columns: cols.length };
+  };
 
   // Capital IQ rows mapped to segments, one row per company in any segment.
-  const calcCompanies = (screen, segments) => {
+  const calcCompanies = (screen, segments, icp = []) => {
     const wanted = new Map();
     for (const s of segments) {
       if (!wanted.has(s.segment)) wanted.set(s.segment, { group: s.group, tags: new Set() });
       wanted.get(s.segment).tags.add(String(s.capital_iq_industry).trim());
     }
     const revenueColumn = Object.keys(screen[0] || {}).find((k) => k.startsWith('Total Revenue'));
+    const cols = answerColumns(Object.keys(screen[0] || {}), icp);
     const seen = new Set();
     const out = [];
     for (const row of screen) {
@@ -33,7 +71,7 @@
       for (const [segment, w] of wanted) {
         if (tags.some((t) => w.tags.has(t))) {
           const country = String(row['Geographic Locations'] ?? '').includes('Canada') ? 'Canada' : 'United States';
-          out.push({ company: name, segment, group: w.group, revenue_usd_m: revenue, country });
+          out.push({ company: name, segment, group: w.group, revenue_usd_m: revenue, country, answers: answersOf(row, cols) });
           break;
         }
       }
@@ -111,6 +149,10 @@
       .filter((c) => inScope(c) && c.revenue_usd_m >= revMin && c.revenue_usd_m <= revMax)
       .map((c) => ({ ...c, tier: tierOf(c.revenue_usd_m) }));
     const units = chosen.map((c) => ({ segment: c.segment, group: c.group, tier: c.tier, country: c.country, n: 1 }));
+    const focusEarly = p.focus && segs.includes(p.focus) ? p.focus : null;
+    const icp = scoreIcp(d, p, focusEarly ? chosen.filter((c) => c.segment === focusEarly) : chosen, chosen);
+    const samBasis = p.sam === 'icp' ? 'icp' : 'fit';
+    const fitOf = (c) => (samBasis === 'icp' ? icp.ratio : c.fit);
 
     // Exports are sorted by revenue, so rows lost at the row limit sit just below the floor.
     // Assume they split across segments like the companies just above it.
@@ -148,7 +190,7 @@
       let money = 0;
       for (const u of all) { n += u.n; money += u.n * acvFor(u, c); }
       const acv = n ? money / n : c.acv;
-      const samN = n * c.fit;
+      const samN = n * fitOf(c);
       const wanted = samN * c.win;
       const capacity = c.cap * years;
       const clients = Math.min(wanted, capacity);
@@ -157,7 +199,7 @@
     };
     const results = Object.fromEntries(caseNames.map((n) => [n, size(cases[n])]));
     const sens = cases.Low && cases.Base && cases.High
-      ? DRIVERS.map(([label, k]) => {
+      ? DRIVERS.filter(([, k]) => samBasis === 'fit' || k !== 'fit').map(([label, k]) => {
         const low = size({ ...cases.Base, [k]: cases.Low[k] }).SOM;
         const high = size({ ...cases.Base, [k]: cases.High[k] }).SOM;
         return { label, low, high, swing: Math.abs(high - low) };
@@ -167,18 +209,81 @@
     const poolAll = d.companies.filter(inScope);
     const pool = focus ? poolAll.filter((c) => c.segment === focus) : poolAll;
     const tierLines = tiers.map((t) => ({ name: t.name, usd_m: t.min / fx }));
-    const mc = cases.Low && cases.Base && cases.High ? monteCarlo(all, cases, size, years) : null;
+    const mc = cases.Low && cases.Base && cases.High ? monteCarlo(all, cases, size, years, samBasis === 'icp' ? icp.ratio : null) : null;
 
-    return { status: 'ok', set, segList, segs, countries, revMin, revMax, fx, years, pricing, estimate,
+    return { status: 'ok', icp, samBasis, set, segList, segs, countries, revMin, revMax, fx, years, pricing, estimate,
       cases, fileCases, over, caseNames, sel, tierNames, est, acvFor, results, sens, focus,
       chosen: focus ? chosen.filter((c) => c.segment === focus) : chosen, units: all, breakUnits: everySeg,
       pool, poolAll, tierLines, mc, topLow: set.top_down_low_usd, topHigh: set.top_down_high_usd };
   }
 
+  // Scores companies against the ICP. Each attribute is yes, no or unanswered; an
+  // unanswered one counts at its assumed share, so a company's chance of matching is the
+  // product over attributes (treated as independent). Adds .icp and .priority to the rows.
+  function scoreIcp(d, p, pool, chosen) {
+    const rows = d.icp || [];
+    const rev = rows.find((r) => r.key === 'revenue') || {};
+    let over = {};
+    try { over = p.icp_shares ? JSON.parse(p.icp_shares) : {}; } catch { over = {}; }
+    const from = finite(p.icp_from) ? Number(p.icp_from) : finite(rev.from_usd_m) ? Number(rev.from_usd_m) : 0;
+    const to = finite(p.icp_to) ? Number(p.icp_to) : finite(rev.to_usd_m) ? Number(rev.to_usd_m) : 1e9;
+    const flags = rows.filter((r) => r.key !== 'revenue').map((r) => {
+      const fileShare = finite(r.assumed_share) ? Number(r.assumed_share) : 0.5;
+      return { key: String(r.key), label: String(r.attribute), fileShare,
+        share: finite(over[r.key]) ? Math.min(1, Math.max(0, Number(over[r.key]))) : fileShare };
+    });
+    const big = (v) => (v >= 1000 ? `${+(v / 1000).toFixed(2)}B` : `${Math.round(v)}M`);
+    const attrs = [{ key: 'revenue', label: `Revenue US$${big(from)}–${big(to)}`, data: true }, ...flags];
+    const upload = d.icpUpload;
+    for (const c of chosen) {
+      const fromFile = upload ? upload.map.get(norm(c.company)) : null;
+      const ans = { revenue: c.revenue_usd_m >= from && c.revenue_usd_m <= to };
+      for (const a of flags) {
+        const u = fromFile ? fromFile[a.key] : null;
+        ans[a.key] = u ?? (c.answers ? c.answers[a.key] ?? null : null);
+      }
+      let yes = 0;
+      let no = 0;
+      let chance = 1;
+      for (const a of attrs) {
+        if (ans[a.key] === true) yes += 1;
+        else if (ans[a.key] === false) { no += 1; chance = 0; } else chance *= a.share;
+      }
+      const status = no ? 'out' : yes === attrs.length ? 'match' : 'possible';
+      c.icp = { ans, yes, no, chance, status, inFile: Boolean(fromFile) };
+      c.priority = (status === 'match' ? 2 : status === 'possible' ? 1 : 0) * 1e3 + yes * 10 + chance * 9.99;
+    }
+    // Funnel: companies still in after each attribute, confirmed and expected.
+    const steps = [{ key: 'scope', label: 'Companies in scope', confirmed: pool.length, expected: pool.length }];
+    const live = pool.map(() => ({ sure: true, p: 1 }));
+    for (const a of attrs) {
+      let confirmed = 0;
+      let expected = 0;
+      pool.forEach((c, i) => {
+        const v = c.icp.ans[a.key];
+        live[i].sure = live[i].sure && v === true;
+        live[i].p *= v === true ? 1 : v === false ? 0 : a.share;
+        if (live[i].sure) confirmed += 1;
+        expected += live[i].p;
+      });
+      steps.push({ key: a.key, label: a.label, confirmed, expected, share: a.share, data: a.data,
+        yes: pool.filter((c) => c.icp.ans[a.key] === true).length,
+        no: pool.filter((c) => c.icp.ans[a.key] === false).length });
+    }
+    const expected = steps[steps.length - 1].expected;
+    return { attrs, flags, from, to, over, steps, expected,
+      answered: pool.filter((c) => flags.some((a) => c.icp.ans[a.key] !== null)).length,
+      ratio: pool.length ? expected / pool.length : 0,
+      match: pool.filter((c) => c.icp.status === 'match').length,
+      possible: pool.filter((c) => c.icp.status === 'possible').length,
+      out: pool.filter((c) => c.icp.status === 'out').length,
+      file: upload ? { name: upload.name, matched: chosen.filter((c) => c.icp.inFile).length, columns: upload.columns } : null };
+  }
+
   // SOM under uncertainty: each driver drawn from a triangular distribution with
   // Low as minimum, Base as mode and High as maximum. Seeded, so the chart is stable.
   const DRAWS = 5000;
-  function monteCarlo(units, cases, size, years) {
+  function monteCarlo(units, cases, size, years, fixedFit) {
     const base = size(cases.Base);
     const n = base.tamN;
     if (!n) return null;
@@ -200,7 +305,7 @@
     };
     const draws = new Float64Array(DRAWS);
     for (let i = 0; i < DRAWS; i += 1) {
-      const fit = tri('fit');
+      const fit = fixedFit ?? tri('fit');
       const acv = tri('acv');
       const win = tri('win');
       const cap = tri('cap');
@@ -216,7 +321,7 @@
   // Reads a Capital IQ export: CSV, TSV or .xlsx, as raw bytes or as a Google Drive
   // download answer (base64). Returns the Screening rows, plus the true screen size and
   // revenue bounds from the Aggregates and Screen Criteria sheets when the file has them.
-  const readScreenFile = async ({ answer }) => {
+  const readScreenFile = async ({ answer, kind = 'screen' }) => {
     const fail = (code, message) => Object.assign(new Error(message), { code });
     const decode = (b) => Uint8Array.from(atob(b.replace(/\s+/g, '')), (c) => c.charCodeAt(0));
     let bytes;
@@ -241,7 +346,7 @@
       const h = rows.findIndex((r) => r.some((c) => String(c ?? '').trim() === 'Company Name'));
       if (h < 0) throw fail('bad', 'No Company Name column, so this does not look like a Capital IQ screen.');
       const header = rows[h].map((c) => String(c ?? '').trim());
-      if (!header.some((k) => k.startsWith('Total Revenue'))) throw fail('bad', 'No Total Revenue column, so this does not look like a Capital IQ screen.');
+      if (kind === 'screen' && !header.some((k) => k.startsWith('Total Revenue'))) throw fail('bad', 'No Total Revenue column, so this does not look like a Capital IQ screen.');
       const nameAt = header.indexOf('Company Name');
       const data = [];
       for (const r of rows.slice(h + 1)) {
@@ -342,14 +447,18 @@
     return toTable(await sheetRows(named('Screening') || sheets[0]), meta);
   };
 
-  // Which screen the figures use: a file the viewer loaded or a Drive link. There is no saved one.
+  // Which screen the figures use: a file the viewer loaded, or the saved
+  // screen, whose version, date and true size come from its info file.
   function activeSource(p) {
     if (p.source === 'upload' && window.tsUpload) return { kind: 'upload', status: 'ok', ...window.tsUpload };
-    if (p.drive_file) {
-      const g = dash.data('drive_screen');
-      return { kind: 'drive', status: g.status, rows: g.data, meta: g.meta || [] };
-    }
-    return { kind: 'none', status: 'empty' };
+    const screen = dash.data('screen');
+    const info = dash.data('screen_info');
+    const status = screen.status !== 'ok' ? screen.status : info.status;
+    const row = (status === 'ok' && info.data[0]) || {};
+    const meta = Object.entries(META_SETTINGS)
+      .filter(([, setting]) => finite(row[setting]))
+      .map(([label, setting]) => ({ label, value: String(row[setting]) }));
+    return { kind: 'saved', status, rows: screen.data, meta, label: row.label || 'Saved screen' };
   }
 
   // A loaded file brings its own screen size from its Aggregates and Screen Criteria sheets.
@@ -373,10 +482,11 @@
     const bad = got.find((g) => g.status !== 'ok');
     if (bad) return { status: bad.status, source };
     const key = JSON.stringify(p);
-    const refs = got.map((g) => g.data).concat(source.rows || null);
+    const refs = got.map((g) => g.data).concat(source.rows || null, window.tsIcpUpload || null);
     if (last && last.key === key && last.refs.length === refs.length && last.refs.every((r, i) => r === refs[i])) return last.m;
     const d = Object.fromEntries(ids.map((id, i) => [id, got[i].data]));
-    d.companies = calcCompanies(source.rows, d.segments);
+    d.companies = calcCompanies(source.rows, d.segments, d.icp);
+    d.icpUpload = window.tsIcpUpload ? { ...window.tsIcpUpload, ...answersFrom(window.tsIcpUpload.rows, d.icp) } : null;
     d.screen_stats = calcScreenStats(source.rows);
     d.settings = d.settings.concat(metaSettings(source.meta));
     const m = compute(d, p);
@@ -397,5 +507,5 @@
   const pct = (v) => `${+(v * 100).toFixed(1)}%`;
 
   window.ts = { KEYS, DATASETS, calcCompanies, calcScreenStats, compute, model, money, count, clients, pct, finite,
-    readScreenFile, activeSource };
+    readScreenFile, activeSource, answersFrom };
 })();

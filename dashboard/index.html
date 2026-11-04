@@ -31,6 +31,8 @@
   .ts-note { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); max-width: 72ch; line-height: 1.5; }
   .ts-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); }
   .ts-row { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: end; }
+  .ts-drawer-head { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--cds-gap-xs) var(--cds-gap-md); }
+  .ts-section-title { margin: 0; font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); color: var(--ap-navy); }
   .ts-drawer-foot { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; grid-column: 1 / -1; }
 
   .ts-grid { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); }
@@ -107,7 +109,7 @@
   .ts-table th[aria-sort="ascending"] .ts-sort, .ts-table th[aria-sort="descending"] .ts-sort { color: var(--color-fg); }
   @container (max-width: 520px) { .ts-hide-narrow { display: none; } }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
-  .ts-data-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--cds-gap-md); align-items: stretch; }
+  .ts-data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--cds-gap-md); align-items: stretch; }
   @container (max-width: 640px) { .ts-data-grid { grid-template-columns: minmax(0, 1fr); } }
   .ts-data-now { display: inline-flex; align-items: center; gap: 8px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; min-width: 0; }
   .ts-data-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ap-grey); flex: none; }
@@ -122,10 +124,6 @@
   .ts-drop-busy { display: none; font-size: var(--cds-font-size-caption); color: var(--ap-blue); font-weight: var(--cds-font-weight-medium); }
   .ts-drop.is-busy .ts-drop-busy { display: block; }
   .ts-drop.is-busy .ts-drop-sub { display: none; }
-  .ts-drive { display: grid; gap: var(--cds-gap-sm); align-content: center; padding: var(--cds-pad-md); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
-  .ts-drive-row { display: flex; gap: var(--cds-gap-sm); }
-  .ts-drive-row .ts-in { flex: 1; }
-  .ts-drive-load { background: var(--ap-blue); color: #fff; border-color: var(--ap-blue); }
   .ts-data-foot { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); align-items: center; justify-content: space-between; }
   .ts-svg .ts-mark { transition: opacity var(--cds-dur-slow) var(--cds-ease-out), filter var(--cds-dur-slow) var(--cds-ease-out); }
   .ts-svg .ts-mark.is-dim { opacity: 0.35; }
@@ -133,57 +131,45 @@
   .ts-svg .ts-clickable { cursor: pointer; }
   .ts-chip-static.is-focus { font: inherit; font-size: var(--cds-font-size-caption); cursor: pointer; color: #fff; background: var(--ap-green); border-color: var(--ap-green); }
   .ts-table td.ts-bar-cell { background: linear-gradient(to left, color-mix(in srgb, var(--c) 22%, transparent) var(--w), transparent var(--w)); }
+  .ts-icp-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); gap: var(--cds-gap-md); }
+  .ts-icp-kpi { display: grid; gap: 2px; padding: var(--cds-pad-sm) var(--cds-pad-md); border-left: 3px solid var(--ap-blue); background: color-mix(in srgb, var(--ap-blue) 5%, transparent); border-radius: 0 var(--cds-radius) var(--cds-radius) 0; }
+  .ts-icp-kpi.is-match { border-left-color: var(--ap-green); background: color-mix(in srgb, var(--ap-green) 7%, transparent); }
+  .ts-icp-kpi.is-out { border-left-color: var(--ap-grey); background: transparent; }
+  .ts-icp-num { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; color: var(--ap-navy); }
+  .ts-icp-cell { white-space: nowrap; }
+  .ts-icp-dots { display: inline-flex; gap: 3px; vertical-align: middle; margin-right: 8px; }
+  .ts-icp-dot { width: 8px; height: 8px; border-radius: 50%; box-sizing: border-box; }
+  .ts-icp-dot.is-yes { background: var(--ap-green); }
+  .ts-icp-dot.is-no { background: var(--color-bad); }
+  .ts-icp-dot.is-unknown { border: 1.5px solid var(--ap-grey); opacity: 0.6; }
+  .ts-icp-word { font-variant-numeric: tabular-nums; color: var(--color-fg-muted); }
+  .ts-icp-word.is-match { color: var(--ap-green); font-weight: 600; }
+  .ts-icp-word.is-out { opacity: 0.7; }
+  .ts-icp-legend { display: flex; flex-wrap: wrap; gap: 4px var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); align-items: center; }
+  .ts-icp-legend > span { display: inline-flex; gap: 6px; align-items: center; }
+  .ts-icp-range { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+  .ts-in.is-muted { opacity: 0.45; }
   .ts-big { background: linear-gradient(120deg, var(--ap-navy), var(--ap-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 </style>
 
 <div class="ts">
   <header class="ts-head" id="top">
-    <div class="ts-eyebrow">Market sizing · Capital IQ screen</div>
+    <div class="ts-eyebrow">Market sizing · <span data-draw="source-status" data-source="screen screen_info">—</span></div>
     <h1 class="ts-title">TAM SAM SOM model</h1>
     <p class="ts-take ts-start">Load a Capital IQ export in the Data panel below to size the market. The assumptions are ready; edit them any time.</p>
-    <p class="ts-take ts-result">The <b data-draw="v" data-v="case">—</b> case puts TAM at <b data-draw="v" data-v="TAM" data-source="cases tiers settings segments">—</b>, SAM at <b data-draw="v" data-v="SAM" data-source="cases tiers settings segments">—</b> and SOM at <b data-draw="v" data-v="SOM" data-source="cases tiers settings segments">—</b> by year <span data-draw="v" data-v="years" data-source="settings">—</span>, set by the <span data-draw="v" data-v="limit" data-source="cases tiers settings segments">—</span>. Across <span data-draw="v" data-v="mc-n" data-source="cases tiers settings segments">—</span> simulated scenarios, SOM lands between <b data-draw="v" data-v="mc-p10" data-source="cases tiers settings segments">—</b> and <b data-draw="v" data-v="mc-p90" data-source="cases tiers settings segments">—</b> four times in five.</p>
+    <p class="ts-take ts-result">The <b data-draw="v" data-v="case">—</b> case puts TAM at <b data-draw="v" data-v="TAM" data-source="screen screen_info cases tiers settings segments icp">—</b>, SAM at <b data-draw="v" data-v="SAM" data-source="screen screen_info cases tiers settings segments icp">—</b> and SOM at <b data-draw="v" data-v="SOM" data-source="screen screen_info cases tiers settings segments icp">—</b> by year <span data-draw="v" data-v="years" data-source="settings">—</span>, set by the <span data-draw="v" data-v="limit" data-source="screen screen_info cases tiers settings segments icp">—</span>. Across <span data-draw="v" data-v="mc-n" data-source="screen screen_info cases tiers settings segments icp">—</span> simulated scenarios, SOM lands between <b data-draw="v" data-v="mc-p10" data-source="screen screen_info cases tiers settings segments icp">—</b> and <b data-draw="v" data-v="mc-p90" data-source="screen screen_info cases tiers settings segments icp">—</b> four times in five.</p>
   </header>
 
   <div class="ts-strip" id="scenario">
-    <div class="ts-strip-chips" data-draw="scenario" data-source="cases tiers settings segments">—</div>
-    <button class="ts-btn ts-edit" type="button" aria-expanded="false" aria-controls="assumptions">Edit assumptions</button>
+    <div class="ts-strip-chips" data-draw="scenario" data-source="screen screen_info cases tiers settings segments icp">—</div>
+    <button class="ts-btn ts-edit" type="button" aria-expanded="true" aria-controls="assumptions"><span class="ts-edit-open" hidden>Edit assumptions</span><span class="ts-edit-close">Hide assumptions</span></button>
   </div>
 
-  <section class="ts-card ts-data" id="data">
-    <div class="ts-card-head">
-      <h2>Data</h2>
-      <div class="ts-data-now"><span class="ts-data-dot"></span><span data-draw="source-status">—</span></div>
+  <div class="ts-drawer" id="assumptions">
+    <div class="ts-drawer-head">
+      <h2 class="ts-section-title">Assumptions</h2>
+      <p class="ts-note">Type over any number or click a chip. Every figure and chart updates at once.</p>
     </div>
-    <div class="ts-data-grid">
-      <label class="ts-drop" id="drop-zone" for="file-input">
-        <input class="ts-file" id="file-input" type="file" accept=".csv,.tsv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-        <span class="ts-drop-icon" aria-hidden="true">↑</span>
-        <span class="ts-drop-title">Drop a Capital IQ export here</span>
-        <span class="ts-drop-sub">or click to choose a .csv or .xlsx file</span>
-        <span class="ts-drop-busy">Reading the file…</span>
-      </label>
-      <div class="ts-drive">
-        <label class="ts-label" for="drive-link">Or paste a Google Drive link</label>
-        <div class="ts-drive-row">
-          <input class="ts-in" id="drive-link" type="url" placeholder="https://drive.google.com/file/d/…" autocomplete="off">
-          <button class="ts-btn ts-drive-load" type="button">Load</button>
-        </div>
-        <p class="ts-note">A CSV, .xlsx or Google Sheet you can open. It loads through your own Google Drive connection.</p>
-      </div>
-    </div>
-    <p class="ts-warn" data-msg="xls" hidden>That is an old .xls file. In Excel, save it as .xlsx (or CSV) and load it again.</p>
-    <p class="ts-warn" data-msg="bad" hidden>That file has no Company Name and Total Revenue columns, so it doesn't look like a Capital IQ screen.</p>
-    <p class="ts-warn" data-msg="read" hidden>That file couldn't be read. Try saving it again as .xlsx or CSV.</p>
-    <p class="ts-warn" data-msg="link" hidden>That doesn't look like a Google Drive link. Copy the link from Drive's Share menu and paste it here.</p>
-    <p class="ts-warn" data-msg="drive" hidden>The Drive file didn't load. Check that you can open it and that it is a CSV, .xlsx or Google Sheet.</p>
-    <p class="ts-warn" data-msg="connect" hidden>Connect Google Drive to load this file.</p>
-    <div class="ts-data-foot">
-      <p class="ts-note">Your file stays in your browser for this visit; nobody else sees it, and nothing is uploaded or saved. Drive links use your own Google Drive connection.</p>
-      <button class="ts-btn ts-btn-quiet ts-use-saved" type="button" hidden>Clear the loaded file</button>
-    </div>
-  </section>
-
-  <div class="ts-drawer" id="assumptions" hidden>
     <section class="ts-card" id="drivers" aria-label="Drivers by case">
       <h2>Drivers</h2>
       <table class="ts-grid">
@@ -244,12 +230,81 @@
       </div>
     </section>
 
+    <section class="ts-card" id="icp-setup" aria-label="Ideal customer profile">
+      <h2>Ideal customer profile</h2>
+      <p class="ts-note">Companies are ranked by how many of these are true. Answers come from the screen or an answers file in the Data panel; an unanswered attribute counts at its assumed share.</p>
+      <div class="ts-row">
+        <label class="ts-field">ICP revenue from (US$M)<input class="ts-in" id="icp-from" type="number" min="0" step="10"></label>
+        <label class="ts-field">to (US$M)<input class="ts-in" id="icp-to" type="number" min="0" step="10"></label>
+      </div>
+      <table class="ts-grid">
+        <thead><tr><th scope="col">Attribute</th><th scope="col">Answers</th><th scope="col">Assumed true (%)</th></tr></thead>
+        <tbody>
+          <tr><td>Hundreds of SKUs</td><td data-draw="v" data-v="icp-known@skus" data-source="screen screen_info segments icp">—</td>
+            <td><input class="ts-in ts-icp-share" id="icp-share-skus" type="number" min="0" max="100" step="5" data-k="skus" aria-label="Assumed share with hundreds of SKUs, percent"></td></tr>
+          <tr><td>Multiple sales channels</td><td data-draw="v" data-v="icp-known@channels" data-source="screen screen_info segments icp">—</td>
+            <td><input class="ts-in ts-icp-share" id="icp-share-channels" type="number" min="0" max="100" step="5" data-k="channels" aria-label="Assumed share with multiple sales channels, percent"></td></tr>
+          <tr><td>Structured pricing team</td><td data-draw="v" data-v="icp-known@team" data-source="screen screen_info segments icp">—</td>
+            <td><input class="ts-in ts-icp-share" id="icp-share-team" type="number" min="0" max="100" step="5" data-k="team" aria-label="Assumed share with a structured pricing team, percent"></td></tr>
+          <tr><td>High volume of pricing decisions</td><td data-draw="v" data-v="icp-known@volume" data-source="screen screen_info segments icp">—</td>
+            <td><input class="ts-in ts-icp-share" id="icp-share-volume" type="number" min="0" max="100" step="5" data-k="volume" aria-label="Assumed share with a high volume of pricing decisions, percent"></td></tr>
+          <tr><td>Pricing dependent on Excel</td><td data-draw="v" data-v="icp-known@excel" data-source="screen screen_info segments icp">—</td>
+            <td><input class="ts-in ts-icp-share" id="icp-share-excel" type="number" min="0" max="100" step="5" data-k="excel" aria-label="Assumed share whose pricing depends on Excel, percent"></td></tr>
+        </tbody>
+      </table>
+      <div class="ts-chip-block">
+        <div class="ts-label">SAM is</div>
+        <div class="ts-seg" role="group" aria-label="SAM is">
+          <button type="button" data-param="sam" data-value="fit">Share that fit</button>
+          <button type="button" data-param="sam" data-value="icp">Companies matching the ICP</button>
+        </div>
+      </div>
+      <p class="ts-note">The assumed shares are placeholders: replace them with your own estimates, or load answers so they aren't needed.</p>
+    </section>
+
     <div class="ts-drawer-foot">
       <button class="ts-btn ts-reset" type="button">Reset to saved assumptions</button>
-      <button class="ts-btn ts-btn-quiet ts-close" type="button">Close</button>
+      <button class="ts-btn ts-btn-quiet ts-close" type="button">Hide assumptions</button>
       <p class="ts-warn ts-changed-note" hidden>Showing your changes. They are not saved to the files.</p>
     </div>
   </div>
+
+  <section class="ts-card ts-data" id="data">
+    <div class="ts-card-head">
+      <h2>Data</h2>
+      <div class="ts-data-now"><span class="ts-data-dot"></span><span data-draw="source-status">—</span></div>
+    </div>
+    <div class="ts-data-grid">
+      <label class="ts-drop" id="drop-zone" for="file-input">
+        <input class="ts-file" id="file-input" type="file" accept=".csv,.tsv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        <span class="ts-drop-icon" aria-hidden="true">↑</span>
+        <span class="ts-drop-title">Drop a Capital IQ export here</span>
+        <span class="ts-drop-sub">or click to choose a .csv or .xlsx file</span>
+        <span class="ts-drop-busy">Reading the file…</span>
+      </label>
+      <label class="ts-drop" id="icp-drop" for="icp-input">
+        <input class="ts-file" id="icp-input" type="file" accept=".csv,.tsv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        <span class="ts-drop-icon" aria-hidden="true">✓</span>
+        <span class="ts-drop-title">Drop ICP answers here</span>
+        <span class="ts-drop-sub">Company Name plus a yes/no column per attribute</span>
+        <span class="ts-drop-busy">Reading the file…</span>
+      </label>
+    </div>
+    <div class="ts-data-foot">
+      <div class="ts-data-now"><span data-draw="icp-file" data-source="screen screen_info cases tiers settings segments icp">—</span></div>
+      <button class="ts-btn ts-btn-quiet ts-icp-clear" type="button" hidden>Remove the answers file</button>
+    </div>
+    <p class="ts-warn" data-msg="icp-bad" hidden>That answers file has no Company Name column.</p>
+    <p class="ts-warn" data-msg="icp-read" hidden>That answers file couldn't be read. Try saving it again as .xlsx or CSV.</p>
+    <p class="ts-warn" data-msg="xls" hidden>That is an old .xls file. In Excel, save it as .xlsx (or CSV) and load it again.</p>
+    <p class="ts-warn" data-msg="bad" hidden>That file has no Company Name and Total Revenue columns, so it doesn't look like a Capital IQ screen.</p>
+    <p class="ts-warn" data-msg="read" hidden>That file couldn't be read. Try saving it again as .xlsx or CSV.</p>
+    <div class="ts-data-foot">
+      <p class="ts-note">The dashboard opens on the saved screen. A file you load stays in your browser for this visit; nobody else sees it, and nothing is uploaded or saved.</p>
+      <button class="ts-btn ts-btn-quiet ts-use-saved" type="button" hidden>Back to the saved screen</button>
+    </div>
+  </section>
+
 
   <p class="ts-warn ts-empty" hidden>No companies match. Choose at least one segment and one country, or widen the revenue range.</p>
 
@@ -269,42 +324,58 @@
       </div>
     </div>
     <div class="ts-hero">
-      <div class="ts-chart ts-chart-hero" data-draw="size" data-source="cases tiers settings segments"></div>
+      <div class="ts-chart ts-chart-hero" data-draw="size" data-source="screen screen_info cases tiers settings segments icp"></div>
       <div class="ts-kpis">
         <div class="ts-kpi" id="kpi-tam">
           <div class="ts-kpi-top"><span class="ts-dot" data-ring="TAM"></span><span class="ts-kpi-tag">TAM</span><span class="ts-kpi-def">every company in scope</span></div>
-          <div class="ts-big" data-draw="v" data-v="TAM" data-source="cases tiers settings segments">—</div>
-          <div class="ts-kpi-sub" data-draw="v" data-v="tamN" data-source="cases tiers settings segments">—</div>
-          <div class="ts-range" data-draw="range" data-m="TAM" data-source="cases tiers settings segments"></div>
+          <div class="ts-big" data-draw="v" data-v="TAM" data-source="screen screen_info cases tiers settings segments icp">—</div>
+          <div class="ts-kpi-sub" data-draw="v" data-v="tamN" data-source="screen screen_info cases tiers settings segments icp">—</div>
+          <div class="ts-range" data-draw="range" data-m="TAM" data-source="screen screen_info cases tiers settings segments icp"></div>
         </div>
         <div class="ts-kpi" id="kpi-sam">
-          <div class="ts-kpi-top"><span class="ts-dot" data-ring="SAM"></span><span class="ts-kpi-tag">SAM</span><span class="ts-kpi-def">the share that fit</span></div>
-          <div class="ts-big" data-draw="v" data-v="SAM" data-source="cases tiers settings segments">—</div>
-          <div class="ts-kpi-sub" data-draw="v" data-v="samN" data-source="cases tiers settings segments">—</div>
-          <div class="ts-range" data-draw="range" data-m="SAM" data-source="cases tiers settings segments"></div>
+          <div class="ts-kpi-top"><span class="ts-dot" data-ring="SAM"></span><span class="ts-kpi-tag">SAM</span><span class="ts-kpi-def" data-draw="v" data-v="sam-def" data-source="screen screen_info cases tiers settings segments icp">—</span></div>
+          <div class="ts-big" data-draw="v" data-v="SAM" data-source="screen screen_info cases tiers settings segments icp">—</div>
+          <div class="ts-kpi-sub" data-draw="v" data-v="samN" data-source="screen screen_info cases tiers settings segments icp">—</div>
+          <div class="ts-range" data-draw="range" data-m="SAM" data-source="screen screen_info cases tiers settings segments icp"></div>
         </div>
         <div class="ts-kpi" id="kpi-som">
           <div class="ts-kpi-top"><span class="ts-dot" data-ring="SOM"></span><span class="ts-kpi-tag">SOM</span><span class="ts-kpi-def">what you can win</span></div>
-          <div class="ts-big" data-draw="v" data-v="SOM" data-source="cases tiers settings segments">—</div>
-          <div class="ts-kpi-sub" data-draw="v" data-v="somN" data-source="cases tiers settings segments">—</div>
-          <div class="ts-range" data-draw="range" data-m="SOM" data-source="cases tiers settings segments"></div>
+          <div class="ts-big" data-draw="v" data-v="SOM" data-source="screen screen_info cases tiers settings segments icp">—</div>
+          <div class="ts-kpi-sub" data-draw="v" data-v="somN" data-source="screen screen_info cases tiers settings segments icp">—</div>
+          <div class="ts-range" data-draw="range" data-m="SOM" data-source="screen screen_info cases tiers settings segments icp"></div>
         </div>
       </div>
     </div>
-    <p class="ts-note">TAM is companies in scope times the yearly contract. SAM keeps the share that fit. SOM applies the win rate to SAM, capped at <span data-draw="v" data-v="years" data-source="settings">—</span> years of sales capacity. Circle areas are to scale. The range bars place the chosen case between Low and High.</p>
+    <p class="ts-note">TAM is companies in scope times the yearly contract. SAM keeps the share that fit, or the companies expected to match the ICP. SOM applies the win rate to SAM, capped at <span data-draw="v" data-v="years" data-source="settings">—</span> years of sales capacity. Circle areas are to scale. The range bars place the chosen case between Low and High.</p>
+  </section>
+
+  <section class="ts-card" id="icp">
+    <h2>Ideal customer profile fit</h2>
+    <div class="ts-icp-kpis">
+      <div class="ts-icp-kpi is-match"><span class="ts-label">Confirmed matches</span><span class="ts-icp-num" data-draw="v" data-v="icp-match" data-source="screen screen_info cases tiers settings segments icp">—</span><span class="ts-kpi-sub">every attribute answered yes</span></div>
+      <div class="ts-icp-kpi"><span class="ts-label">Expected matches</span><span class="ts-icp-num" data-draw="v" data-v="icp-expected" data-source="screen screen_info cases tiers settings segments icp">—</span><span class="ts-kpi-sub"><span data-draw="v" data-v="icp-ratio" data-source="screen screen_info cases tiers settings segments icp">—</span> of <span data-draw="v" data-v="icp-scope" data-source="screen screen_info cases tiers settings segments icp">—</span> in scope</span></div>
+      <div class="ts-icp-kpi"><span class="ts-label">Still possible</span><span class="ts-icp-num" data-draw="v" data-v="icp-possible" data-source="screen screen_info cases tiers settings segments icp">—</span><span class="ts-kpi-sub">no attribute answered no</span></div>
+      <div class="ts-icp-kpi is-out"><span class="ts-label">Ruled out</span><span class="ts-icp-num" data-draw="v" data-v="icp-out" data-source="screen screen_info cases tiers settings segments icp">—</span><span class="ts-kpi-sub">at least one no</span></div>
+    </div>
+    <div class="ts-chart" data-draw="icp-funnel" data-source="screen screen_info cases tiers settings segments icp"></div>
+    <p class="ts-note">Each bar keeps the companies that pass every attribute down to it. Solid is confirmed by answers; light adds the companies expected to pass, using the assumed shares for unanswered attributes, treated as independent.</p>
+    <div class="ts-icp-range" data-note="icp-range">
+      <p class="ts-warn">Revenue counted runs <span data-draw="v" data-v="rev-range" data-source="settings">—</span>, but the ICP runs <span data-draw="v" data-v="icp-from" data-source="icp">—</span> to <span data-draw="v" data-v="icp-to" data-source="icp">—</span>, so some ICP companies are not in scope.</p>
+      <button class="ts-btn ts-icp-widen" type="button">Count the ICP revenue range</button>
+    </div>
   </section>
 
   <div class="ts-pair">
     <section class="ts-card" id="simulation">
       <h2>SOM under uncertainty</h2>
-      <p class="ts-note"><span data-draw="v" data-v="mc-n" data-source="cases tiers settings segments">—</span> draws, each driver taken from a triangular distribution: Low as minimum, Base as most likely, High as maximum. Median <b data-draw="v" data-v="mc-p50" data-source="cases tiers settings segments">—</b>; <b data-draw="v" data-v="mc-above" data-source="cases tiers settings segments">—</b> of draws beat the Base case.</p>
-      <div class="ts-chart" data-draw="montecarlo" data-source="cases tiers settings segments"></div>
+      <p class="ts-note"><span data-draw="v" data-v="mc-n" data-source="screen screen_info cases tiers settings segments icp">—</span> draws, each driver taken from a triangular distribution: Low as minimum, Base as most likely, High as maximum. Median <b data-draw="v" data-v="mc-p50" data-source="screen screen_info cases tiers settings segments icp">—</b>; <b data-draw="v" data-v="mc-above" data-source="screen screen_info cases tiers settings segments icp">—</b> of draws beat the Base case.</p>
+      <div class="ts-chart" data-draw="montecarlo" data-source="screen screen_info cases tiers settings segments icp"></div>
     </section>
 
     <section class="ts-card" id="sensitivity">
       <h2>What moves Base SOM most</h2>
       <p class="ts-note">Each driver moved alone to its Low or High value, the others held at Base. Biggest swing first.</p>
-      <div class="ts-chart" data-draw="tornado" data-source="cases tiers settings segments"></div>
+      <div class="ts-chart" data-draw="tornado" data-source="screen screen_info cases tiers settings segments icp"></div>
     </section>
   </div>
 
@@ -324,20 +395,20 @@
         </div>
       </div>
       <p class="ts-note">Chosen segments, largest first, with each one's share of the total. Click a segment to focus every figure on it; click again to clear.</p>
-      <div class="ts-chart" data-draw="breakdown" data-source="cases tiers settings segments"></div>
+      <div class="ts-chart" data-draw="breakdown" data-source="screen screen_info cases tiers settings segments icp"></div>
     </section>
 
     <section class="ts-card" id="revenue">
       <h2>Company revenue</h2>
       <p class="ts-note">Companies in the chosen segments and countries by LTM revenue, log scale. The shaded band is the revenue range counted; dashed lines are Aprix tier thresholds at the FX rate set.</p>
-      <div class="ts-chart" data-draw="revenue" data-source="cases tiers settings segments"></div>
+      <div class="ts-chart" data-draw="revenue" data-source="screen screen_info cases tiers settings segments icp"></div>
     </section>
   </div>
 
   <section class="ts-card" id="notes">
     <h2>Notes</h2>
     <ul class="ts-notes">
-      <li data-note="topdown">The <span data-draw="v" data-v="case">—</span> case TAM is <b data-draw="v" data-v="td-share" data-source="cases tiers settings segments">—</b> of the published top-down estimate of <span data-draw="v" data-v="td-range" data-source="settings">—</span>.</li>
+      <li data-note="topdown">The <span data-draw="v" data-v="case">—</span> case TAM is <b data-draw="v" data-v="td-share" data-source="screen screen_info cases tiers settings segments icp">—</b> of the published top-down estimate of <span data-draw="v" data-v="td-range" data-source="settings">—</span>.</li>
       <li data-note="capacity">Sales capacity never limits SOM in these cases, so the win rate decides it and clients signed a year has no effect.</li>
       <li data-note="cut">The export is incomplete: <span data-draw="v" data-v="exported">—</span> of about <span data-draw="v" data-v="screen-total" data-source="settings">—</span> companies. About <span data-draw="v" data-v="missing" data-source="settings">—</span> below <span data-draw="v" data-v="floor">—</span> revenue are missing, of which an estimated <span data-draw="v" data-v="est-inscope" data-source="settings">—</span> are in scope. <span data-note="cut-in">They are included.</span><span data-note="cut-out">They are not included; add them under Edit assumptions.</span></li>
       <li data-note="screen-max">The screen stops at <span data-draw="v" data-v="screen-max" data-source="settings">—</span> revenue, so larger companies are not counted.</li>
@@ -349,13 +420,27 @@
       <h2>Companies in scope</h2>
       <input class="ts-in ts-search" id="company-search" type="search" placeholder="Search companies" aria-label="Search companies">
     </div>
-    <p class="ts-note"><span data-draw="rows-n">—</span> companies. Real rows only; the cut-off estimate is not listed.</p>
+    <div class="ts-card-head">
+      <div class="ts-icp-legend">
+        <span><span class="ts-icp-dot is-yes"></span>yes</span>
+        <span><span class="ts-icp-dot is-no"></span>no</span>
+        <span><span class="ts-icp-dot is-unknown"></span>unanswered</span>
+        <span>Dots follow the ICP attributes in order, revenue first</span>
+      </div>
+      <div class="ts-seg" role="group" aria-label="Show">
+        <button type="button" class="ts-only" data-only="all" aria-pressed="true">All</button>
+        <button type="button" class="ts-only" data-only="possible" aria-pressed="false">Not ruled out</button>
+        <button type="button" class="ts-only" data-only="match" aria-pressed="false">Confirmed ICP</button>
+      </div>
+    </div>
+    <p class="ts-note"><span data-draw="rows-n">—</span> companies, best ICP fit first: confirmed matches, then by attributes confirmed and chance of matching. Real rows only; the cut-off estimate is not listed.</p>
     <div class="ts-table-box">
       <table class="ts-table">
         <thead><tr>
           <th aria-sort="none"><button class="ts-sort" type="button" data-sort="company">Company</button></th>
-          <th aria-sort="none"><button class="ts-sort" type="button" data-sort="segment">Segment</button></th>
-          <th class="ts-num" aria-sort="descending"><button class="ts-sort" type="button" data-sort="revenue_usd_m">Revenue (US$M)</button></th>
+          <th aria-sort="descending"><button class="ts-sort" type="button" data-sort="priority">ICP fit</button></th>
+          <th class="ts-hide-narrow" aria-sort="none"><button class="ts-sort" type="button" data-sort="segment">Segment</button></th>
+          <th class="ts-num" aria-sort="none"><button class="ts-sort" type="button" data-sort="revenue_usd_m">Revenue (US$M)</button></th>
           <th class="ts-hide-narrow" aria-sort="none"><button class="ts-sort" type="button" data-sort="country">Country</button></th>
         </tr></thead>
         <tbody data-draw="company-rows"></tbody>
@@ -366,14 +451,10 @@
 
 <script src="model.js"></script>
 <script>
-  dash.loader('drive_screen', {
-    description: 'The downloaded Drive file (CSV, .xlsx or a Google Sheet exported as .xlsx) read into its Screening rows, with the screen size from its Aggregates and Screen Criteria sheets.',
-    fn: ts.readScreenFile,
-  });
 </script>
 <script src="charts.js"></script>
 <script>
-  const DEFAULTS = { view: 'circles', case: 'Base', stack: 'tier', measure: 'companies', pricing: 'flat' };
+  const DEFAULTS = { view: 'circles', case: 'Base', stack: 'tier', measure: 'companies', pricing: 'flat', sam: 'fit' };
   const SCALE = { fit: 100, win: 100, acv: 1, cap: 1 };
   const readOver = () => { try { return JSON.parse(dash.params().cases || '{}'); } catch { return {}; } };
   const all = (sel) => document.querySelectorAll(sel);
@@ -381,6 +462,8 @@
   const setDrawer = (open) => {
     for (const d of all('#assumptions')) d.hidden = !open;
     for (const b of all('.ts-edit')) b.setAttribute('aria-expanded', String(open));
+    for (const s of all('.ts-edit-open')) s.hidden = open;
+    for (const s of all('.ts-edit-close')) s.hidden = !open;
   };
   for (const b of all('.ts-edit')) b.addEventListener('click', () => setDrawer(b.getAttribute('aria-expanded') !== 'true'));
   for (const b of all('.ts-close')) b.addEventListener('click', () => setDrawer(false));
@@ -405,13 +488,41 @@
     });
   }
 
-  for (const [id, param] of [['rev-min', 'rev_min'], ['rev-max', 'rev_max'], ['fx', 'fx']]) {
+  for (const [id, param] of [['rev-min', 'rev_min'], ['rev-max', 'rev_max'], ['fx', 'fx'], ['icp-from', 'icp_from'], ['icp-to', 'icp_to']]) {
     for (const input of all('#' + id)) {
       input.addEventListener('change', () => {
         if (input.value === '') dash.setParams({ [param]: null });
         else if (input.validity.valid) dash.setParams({ [param]: Number(input.value) });
       });
     }
+  }
+
+  for (const input of all('.ts-icp-share')) {
+    input.addEventListener('change', () => {
+      const m = ts.model();
+      if (m.status !== 'ok' || input.value === '' || !input.validity.valid) return;
+      const k = input.dataset.k;
+      const value = Number(input.value) / 100;
+      const over = { ...m.icp.over };
+      const a = m.icp.flags.find((f) => f.key === k);
+      if (a && Math.abs(a.fileShare - value) < 1e-9) delete over[k];
+      else over[k] = value;
+      dash.setParams({ icp_shares: Object.keys(over).length ? JSON.stringify(over) : null });
+    });
+  }
+  for (const b of all('.ts-icp-widen')) {
+    b.addEventListener('click', () => {
+      const m = ts.model();
+      if (m.status === 'ok') dash.setParams({ rev_min: Math.min(m.revMin, m.icp.from), rev_max: Math.max(m.revMax, m.icp.to) });
+    });
+  }
+  for (const b of all('.ts-only')) {
+    b.addEventListener('click', () => {
+      window.tsTable.only = b.dataset.only;
+      for (const x of all('.ts-only')) x.setAttribute('aria-pressed', String(x === b));
+      dash.draw('company-rows');
+      dash.draw('rows-n');
+    });
   }
 
   for (const b of all('.ts-country')) {
@@ -429,6 +540,7 @@
   for (const b of all('.ts-reset')) {
     b.addEventListener('click', () => dash.setParams({
       cases: null, segments: null, countries: null, rev_min: null, rev_max: null, fx: null, pricing: 'flat', estimate: false, focus: null,
+      icp_shares: null, icp_from: null, icp_to: null, sam: 'fit',
     }));
   }
 
@@ -443,7 +555,7 @@
     b.addEventListener('click', () => {
       const key = b.dataset.sort;
       const t = window.tsTable;
-      t.dir = t.key === key ? -t.dir : (key === 'revenue_usd_m' ? -1 : 1);
+      t.dir = t.key === key ? -t.dir : (key === 'revenue_usd_m' || key === 'priority' ? -1 : 1);
       t.key = key;
       for (const th of all('.ts-table th')) {
         const on = th.querySelector('.ts-sort')?.dataset.sort === key;
@@ -453,14 +565,9 @@
     });
   }
 
-  // ---- Loading a screen: a dropped or chosen file, or a Google Drive link ----
+  // ---- Loading a screen: a dropped or chosen file ----
   window.tsDataMsg = null;
   const redraw = () => dash.setParams({ data_n: (dash.params().data_n || 0) + 1 });
-  const driveId = (link) => {
-    const s = String(link).trim();
-    const m = s.match(/\/d\/([-\w]{20,})/) || s.match(/[?&]id=([-\w]{20,})/) || s.match(/^([-\w]{25,})$/);
-    return m ? m[1] : null;
-  };
   const loadFile = async (file) => {
     if (!file) return;
     const zones = all('#drop-zone');
@@ -469,7 +576,7 @@
       const res = await ts.readScreenFile({ answer: await file.arrayBuffer() });
       window.tsUpload = { name: file.name, rows: res.data, meta: res.meta };
       window.tsDataMsg = null;
-      dash.setParams({ source: 'upload', drive_file: null, data_n: (dash.params().data_n || 0) + 1 });
+      dash.setParams({ source: 'upload', data_n: (dash.params().data_n || 0) + 1 });
     } catch (e) {
       window.tsDataMsg = ['xls', 'bad'].includes(e.code) ? e.code : 'read';
       redraw();
@@ -489,24 +596,42 @@
       loadFile(e.dataTransfer.files[0]);
     });
   }
-  const loadDrive = () => {
-    for (const input of all('#drive-link')) {
-      const id = driveId(input.value);
-      window.tsDataMsg = id ? null : 'link';
-      if (id) dash.setParams({ drive_file: id, source: null, data_n: (dash.params().data_n || 0) + 1 });
-      else redraw();
+  const loadAnswers = async (file) => {
+    if (!file) return;
+    const zones = all('#icp-drop');
+    for (const z of zones) z.classList.add('is-busy');
+    try {
+      const res = await ts.readScreenFile({ answer: await file.arrayBuffer(), kind: 'answers' });
+      window.tsIcpUpload = { name: file.name, rows: res.data };
+      window.tsDataMsg = null;
+    } catch (e) {
+      window.tsDataMsg = e.code === 'bad' ? 'icp-bad' : 'icp-read';
+    } finally {
+      for (const z of zones) z.classList.remove('is-busy');
+      redraw();
     }
   };
-  for (const b of all('.ts-drive-load')) b.addEventListener('click', loadDrive);
-  for (const input of all('#drive-link')) {
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadDrive(); });
+  for (const input of all('#icp-input')) {
+    input.addEventListener('change', () => { loadAnswers(input.files[0]); input.value = ''; });
   }
+  for (const zone of all('#icp-drop')) {
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('is-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('is-over'));
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.classList.remove('is-over');
+      loadAnswers(e.dataTransfer.files[0]);
+    });
+  }
+  for (const b of all('.ts-icp-clear')) {
+    b.addEventListener('click', () => { window.tsIcpUpload = null; redraw(); });
+  }
+
   for (const b of all('.ts-use-saved')) {
     b.addEventListener('click', () => {
       window.tsUpload = null;
       window.tsDataMsg = null;
-      for (const input of all('#drive-link')) input.value = '';
-      dash.setParams({ source: null, drive_file: null, focus: null });
+      dash.setParams({ source: null, focus: null });
     });
   }
 
@@ -535,17 +660,26 @@
       for (const input of all('#fx')) { setValue(input, m.fx); input.classList.toggle('is-changed', ts.finite(p.fx)); }
       for (const b of all('.ts-country')) b.setAttribute('aria-pressed', String(m.countries.includes(b.dataset.country)));
       for (const b of all('#estimate')) b.setAttribute('aria-pressed', String(m.estimate));
+      for (const input of all('.ts-icp-share')) {
+        const a = m.icp.flags.find((f) => f.key === input.dataset.k);
+        setValue(input, a ? a.share * 100 : NaN);
+        input.classList.toggle('is-changed', ts.finite(m.icp.over[input.dataset.k]));
+      }
+      for (const input of all('#icp-from')) { setValue(input, m.icp.from); input.classList.toggle('is-changed', ts.finite(p.icp_from)); }
+      for (const input of all('#icp-to')) { setValue(input, m.icp.to); input.classList.toggle('is-changed', ts.finite(p.icp_to)); }
+      for (const input of all('#case-low-fit, #case-base-fit, #case-high-fit')) input.classList.toggle('is-muted', m.samBasis === 'icp');
     }
-    const changed = ['cases', 'segments', 'countries', 'rev_min', 'rev_max', 'fx'].some((k) => p[k] != null)
-      || p.pricing === 'tier' || p.estimate === true;
+    show('.ts-icp-clear', Boolean(window.tsIcpUpload));
+    show('[data-note="icp-range"]', ok && (m.revMax < m.icp.to || m.revMin > m.icp.from));
+    const changed = ['cases', 'segments', 'countries', 'rev_min', 'rev_max', 'fx', 'icp_shares', 'icp_from', 'icp_to'].some((k) => p[k] != null)
+      || p.pricing === 'tier' || p.estimate === true || p.sam === 'icp';
     show('.ts-changed-note', changed);
 
     const src = ts.activeSource(p);
     let msg = window.tsDataMsg;
-    if (!msg && src.kind === 'drive') msg = { connect: 'connect', declined: 'connect', error: 'drive' }[src.status] || null;
     for (const el of all('[data-msg]')) el.hidden = el.dataset.msg !== msg;
-    for (const el of all('.ts-data')) el.classList.toggle('is-custom', src.kind !== 'none');
-    show('.ts-use-saved', src.kind !== 'none');
+    for (const el of all('.ts-data')) el.classList.toggle('is-custom', src.kind !== 'saved');
+    show('.ts-use-saved', src.kind !== 'saved');
     show('.ts-start', src.kind === 'none');
     show('.ts-result', src.kind !== 'none');
 

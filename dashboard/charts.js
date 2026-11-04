@@ -146,7 +146,20 @@
     limit: (m) => m.results[m.sel].limit,
     acv: (m) => ts.money(m.results[m.sel].acv),
     tamN: (m) => `${ts.count(m.results[m.sel].tamN)} companies × ${ts.money(m.results[m.sel].acv)} a year`,
-    samN: (m) => `${ts.count(m.results[m.sel].samN)} companies · ${ts.pct(m.cases[m.sel].fit)} of TAM fit`,
+    samN: (m) => (m.samBasis === 'icp'
+      ? `${ts.count(m.results[m.sel].samN)} companies · ${ts.pct(m.icp.ratio)} expected to match the ICP`
+      : `${ts.count(m.results[m.sel].samN)} companies · ${ts.pct(m.cases[m.sel].fit)} of TAM fit`),
+    'sam-def': (m) => (m.samBasis === 'icp' ? 'companies that match the ICP' : 'the share that fit'),
+    'icp-match': (m) => ts.count(m.icp.match),
+    'icp-expected': (m) => ts.count(m.icp.expected),
+    'icp-ratio': (m) => ts.pct(m.icp.ratio),
+    'icp-possible': (m) => ts.count(m.icp.possible),
+    'icp-out': (m) => ts.count(m.icp.out),
+    'icp-answered': (m) => ts.count(m.icp.answered),
+    'icp-scope': (m) => ts.count(m.icp.steps[0].confirmed),
+    'icp-to': (m) => usdM(m.icp.to),
+    'icp-from': (m) => usdM(m.icp.from),
+    'rev-range': (m) => `${usdM(m.revMin)} to ${usdM(m.revMax)}`,
     somN: (m) => `${ts.clients(m.results[m.sel].clients)} clients by year ${m.years} · ${ts.pct(m.cases[m.sel].win)} win rate`,
     'td-share': (m) => {
       const t = m.results[m.sel].TAM;
@@ -171,6 +184,11 @@
     const key = el.getAttribute('data-v');
     if (m.status !== 'ok') { el.textContent = '—'; return; }
     if (VALUES[key]) { el.textContent = VALUES[key](m); return; }
+    if (key.startsWith('icp-known@')) {
+      const st = m.icp.steps.find((x) => x.key === key.slice(10));
+      el.textContent = st ? (st.yes + st.no ? `${ts.count(st.yes)} yes · ${ts.count(st.no)} no` : 'no answers yet') : '—';
+      return;
+    }
     const [measure, name] = key.split('@');
     const r = m.results[name || m.sel];
     el.textContent = r ? ts.money(r[measure]) : '—';
@@ -193,6 +211,9 @@
     ];
     if (m.estimate) chips.push(['+ cut-off estimate']);
     if (Object.keys(m.over).length) chips.push(['Drivers edited', 'is-warn']);
+    if (m.samBasis === 'icp') chips.push(['SAM from ICP']);
+    if (Object.keys(m.icp.over).length) chips.push(['ICP shares edited', 'is-warn']);
+    if (m.icp.file) chips.push([`ICP answers: ${m.icp.file.name}`]);
     for (const [text, cls] of chips) {
       const c = document.createElement('span');
       c.className = `ts-chip-static${cls ? ` ${cls}` : ''}`;
@@ -216,13 +237,11 @@
     const src = ts.activeSource(dash.params());
     const m = ts.model();
     const size = (n, total) => `${ts.count(n)} companies${ts.finite(total) ? ` of ${ts.count(total)} in the screen` : ''}`;
-    if (src.kind === 'drive' && src.status === 'loading') { el.textContent = 'Loading the Drive file…'; return; }
-    if (src.kind === 'drive' && src.status !== 'ok') { el.textContent = 'Drive file not loaded'; return; }
-    if (src.kind === 'none') { el.textContent = 'No screen loaded yet'; return; }
+    if (src.status === 'loading') { el.textContent = 'Loading the saved screen…'; return; }
     if (m.status !== 'ok') { el.textContent = '—'; return; }
     const n = size(m.est.exported, m.est.screenTotal);
     if (src.kind === 'upload') el.textContent = `Your file · ${src.name} · ${n}`;
-    else el.textContent = `Google Drive file · ${n}`;
+    else el.textContent = `Saved screen ${src.label} · ${n}`;
   });
 
   // ---- Segment chips -----------------------------------------------------------------------
@@ -637,16 +656,72 @@
     }
   });
 
+  // ---- ICP funnel: companies left after each attribute ---------------------------------
+
+  dash.draw('icp-funnel', (el) => {
+    const m = begin(el);
+    if (!m) return;
+    const steps = m.icp.steps;
+    if (!steps[0].confirmed) { emptyLine(el, 'No companies match these choices.'); return; }
+    const W = Math.max(280, el.clientWidth);
+    legend(el, [[BRAND.blue, 'Confirmed by answers'], [BRAND.blue, 'Expected, using assumed shares', 0.3]]);
+    const rowH = 46;
+    const H = steps.length * rowH + 4;
+    const svg = svgIn(el, W, H, 'Companies left after each ICP attribute');
+    const t = tip(el);
+    const x = d3.scaleLinear([0, steps[0].expected || 1], [0, W - 12]);
+    const g = svg.append('g');
+    steps.forEach((st, i) => {
+      const y = i * rowH + 4;
+      const last = i === steps.length - 1;
+      const color = last ? BRAND.green : BRAND.blue;
+      const row = g.append('g').attr('class', 'ts-mark');
+      row.append('rect').attr('x', 0).attr('y', y - 4).attr('width', W).attr('height', rowH - 4).style('fill', 'transparent');
+      row.append('text').attr('x', 0).attr('y', y + 12).attr('class', `ts-small${last || !i ? ' ts-strong' : ''}`)
+        .text(i ? `${i === 1 ? '' : '+ '}${st.label}` : st.label);
+      const pctOf = steps[0].expected ? Math.round((st.expected / steps[0].expected) * 100) : 0;
+      row.append('text').attr('x', W).attr('y', y + 12).attr('text-anchor', 'end').attr('class', 'ts-tick')
+        .text(i ? `≈${ts.count(st.expected)} · ${pctOf}%` : ts.count(st.expected));
+      row.append('rect').attr('x', 0).attr('y', y + 20).attr('width', W - 12).attr('height', 14).attr('rx', 2)
+        .style('fill', 'var(--cds-chart-grid)').style('opacity', 0.4);
+      if (st.expected > 0) bar(row, 0, y + 20, Math.max(1.5, x(st.expected)), 14, color, 0.3);
+      if (st.confirmed > 0) bar(row, 0, y + 20, Math.max(1.5, x(st.confirmed)), 14, color, 1);
+      const lines = [[color, 'Confirmed', ts.count(st.confirmed)], [color, 'Expected', ts.count(st.expected), 0.3]];
+      if (i && !st.data) {
+        lines.push([null, 'Answered yes / no', `${ts.count(st.yes)} / ${ts.count(st.no)}`]);
+        lines.push([null, 'Assumed share if unanswered', ts.pct(st.share)]);
+      }
+      row.on('pointermove', (event) => t.show(event, i ? st.label : 'Companies in scope', lines))
+        .on('pointerleave', () => t.hide());
+    });
+    spotlight(g.selectAll('.ts-mark'), svg);
+    reveal(svg, 'icp-funnel', W, H, 'left');
+  });
+
+  dash.draw('icp-file', (el) => {
+    const m = ts.model();
+    if (m.status !== 'ok') { el.textContent = '—'; return; }
+    const f = m.icp.file;
+    if (f) {
+      el.textContent = f.columns
+        ? `${f.name}: answers for ${ts.count(f.matched)} of ${ts.count(m.chosen.length)} companies in scope`
+        : `${f.name}: no ICP columns found`;
+    } else if (m.icp.answered) el.textContent = `Saved screen: answers for ${ts.count(m.icp.answered)} companies`;
+    else el.textContent = 'No answers loaded yet, so every company uses the assumed shares';
+  });
+
   // ---- Company table -----------------------------------------------------------------------
 
-  window.tsTable = window.tsTable || { q: '', key: 'revenue_usd_m', dir: -1 };
+  window.tsTable = window.tsTable || { q: '', key: 'priority', dir: -1, only: 'all' };
 
   function tableRows(m) {
-    const { q, key, dir } = window.tsTable;
+    const { q, key, dir, only } = window.tsTable;
     const needle = q.trim().toLowerCase();
     return m.chosen
       .filter((c) => !needle || `${c.company} ${c.segment} ${c.country}`.toLowerCase().includes(needle))
-      .sort((a, b) => (typeof a[key] === 'number' ? a[key] - b[key] : String(a[key]).localeCompare(String(b[key]))) * dir);
+      .filter((c) => only === 'all' || (only === 'match' ? c.icp.status === 'match' : c.icp.status !== 'out'))
+      .sort((a, b) => (typeof a[key] === 'number' ? a[key] - b[key] : String(a[key]).localeCompare(String(b[key]))) * dir
+        || b.revenue_usd_m - a.revenue_usd_m);
   }
 
   dash.draw('company-rows', (el) => {
@@ -657,7 +732,24 @@
     for (const c of tableRows(m)) {
       const tr = document.createElement('tr');
       tr.setAttribute('data-key', `${encodeURIComponent(c.company)},${encodeURIComponent(String(c.revenue_usd_m))}`);
-      for (const [v, cls] of [[c.company, ''], [c.segment, ''], [String(c.revenue_usd_m), 'ts-num ts-bar-cell'], [c.country, 'ts-hide-narrow']]) {
+      const fit = document.createElement('td');
+      fit.className = 'ts-icp-cell';
+      const dots = document.createElement('span');
+      dots.className = 'ts-icp-dots';
+      for (const a of m.icp.attrs) {
+        const v = c.icp.ans[a.key];
+        const dot = document.createElement('span');
+        dot.className = `ts-icp-dot ${v === true ? 'is-yes' : v === false ? 'is-no' : 'is-unknown'}`;
+        dot.title = `${a.label}: ${v === true ? 'yes' : v === false ? 'no' : `unanswered, assumed ${ts.pct(a.share)}`}`;
+        dots.append(dot);
+      }
+      const word = document.createElement('span');
+      word.className = `ts-icp-word is-${c.icp.status}`;
+      word.textContent = c.icp.status === 'match' ? 'Match' : c.icp.status === 'out' ? 'Out' : `${Math.round(c.icp.chance * 100)}%`;
+      fit.setAttribute('aria-label', `${c.icp.yes} of ${m.icp.attrs.length} ICP attributes confirmed; ${word.textContent}`);
+      fit.append(dots, word);
+      for (const [v, cls] of [[c.company, ''], [null, 'icp'], [c.segment, 'ts-hide-narrow'], [String(c.revenue_usd_m), 'ts-num ts-bar-cell'], [c.country, 'ts-hide-narrow']]) {
+        if (cls === 'icp') { tr.append(fit); continue; }
         const td = document.createElement('td');
         if (cls) td.className = cls;
         td.textContent = v;

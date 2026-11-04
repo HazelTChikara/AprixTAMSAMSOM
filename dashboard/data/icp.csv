@@ -1,0 +1,7 @@
+attribute,key,column,match,from_usd_m,to_usd_m,assumed_share,note
+Revenue US$50M–1.9B,revenue,,,50,1900,,Checked from each company's LTM revenue in the screen
+Hundreds of SKUs,skus,ICP: Hundreds of SKUs,sku,,,0.7,"Placeholder guess, used only for companies without an answer"
+Multiple sales channels,channels,ICP: Multiple sales channels,channel,,,0.8,"Placeholder guess, used only for companies without an answer"
+Structured pricing team,team,ICP: Structured pricing team,team,,,0.35,"Placeholder guess, used only for companies without an answer"
+High volume of pricing decisions,volume,ICP: High volume of pricing decisions,volume|decision,,,0.6,"Placeholder guess, used only for companies without an answer"
+Pricing dependent on Excel,excel,ICP: Pricing dependent on Excel,excel|spreadsheet,,,0.7,"Placeholder guess, used only for companies without an answer"
